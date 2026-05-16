@@ -108,23 +108,28 @@ export default function BucketListPage() {
 
   if (!hydrated) return null
 
+  const cardStyle = { background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)' }
+  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }
+
   return (
-    <div className="p-6 md:p-10 max-w-2xl">
+    <div className="pt-20 p-6 md:p-10 max-w-2xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-stone-800">Bucket List 🌟</h1>
-        <p className="text-stone-400 mt-1 text-sm">
+        <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">our list</p>
+        <h1 className="text-3xl font-light text-white" style={{ fontFamily: 'var(--font-playfair)' }}>Bucket List</h1>
+        <p className="text-white/35 mt-1 text-sm">
           {items.length === 0
             ? 'all the things we want to do together'
             : `${items.filter(i => i.done).length} of ${items.length} done`}
         </p>
       </div>
 
-      <form onSubmit={addItem} className="bg-white rounded-2xl border border-rose-100 p-4 mb-6 flex flex-col gap-3">
+      <form onSubmit={addItem} className="rounded-2xl border border-white/[0.08] p-4 mb-6 flex flex-col gap-3" style={cardStyle}>
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="add something to our bucket list..."
-          className="w-full px-3 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none"
+          style={inputStyle}
         />
         <div className="flex gap-2 flex-wrap">
           {(Object.keys(categories) as Category[]).map(cat => (
@@ -134,16 +139,18 @@ export default function BucketListPage() {
               onClick={() => setCategory(cat)}
               className={`px-3 py-1 rounded-full text-xs transition-colors ${
                 category === cat
-                  ? 'bg-rose-400 text-white'
-                  : 'bg-rose-50 text-stone-500 hover:bg-rose-100'
+                  ? 'text-[#080d1a]'
+                  : 'text-white/40 hover:text-white/70'
               }`}
+              style={category === cat ? { background: '#c8a97e' } : { background: 'rgba(255,255,255,0.06)' }}
             >
               {categories[cat].emoji} {categories[cat].label}
             </button>
           ))}
           <button
             type="submit"
-            className="ml-auto bg-rose-400 hover:bg-rose-500 text-white px-4 py-1 rounded-full text-sm transition-colors"
+            className="ml-auto px-4 py-1 rounded-full text-sm font-medium"
+            style={{ background: '#c8a97e', color: '#080d1a' }}
           >
             Add
           </button>
@@ -152,26 +159,22 @@ export default function BucketListPage() {
 
       {remaining > 0 && (
         <div className="mb-4">
-          <h2 className="text-xs font-medium text-stone-400 uppercase tracking-wider mb-2">Still to do</h2>
+          <p className="text-[10px] tracking-[0.25em] uppercase text-white/25 mb-3">Still to do</p>
           <div className="flex flex-col gap-2">
             {items
               .filter(i => !i.done)
               .map(item => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl border border-rose-100 px-4 py-3 flex items-center gap-3 group"
+                  className="rounded-xl border border-white/[0.07] px-4 py-3 flex items-center gap-3 group"
+                  style={cardStyle}
                 >
                   <button onClick={() => toggle(item.id)}>
-                    <div className="w-5 h-5 rounded-full border-2 border-stone-300 hover:border-rose-400 transition-colors" />
+                    <div className="w-4 h-4 rounded-full border border-white/20 hover:border-[#c8a97e]/50 transition-colors" />
                   </button>
-                  <span className="text-lg">{categories[item.category].emoji}</span>
-                  <span className="flex-1 text-sm text-stone-700">{item.text}</span>
-                  <button
-                    onClick={() => remove(item.id)}
-                    className="opacity-0 group-hover:opacity-100 text-stone-300 hover:text-rose-400 text-xs transition-all"
-                  >
-                    ✕
-                  </button>
+                  <span className="text-base">{categories[item.category].emoji}</span>
+                  <span className="flex-1 text-sm text-white/70">{item.text}</span>
+                  <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-white/50 text-xs transition-all">✕</button>
                 </div>
               ))}
           </div>
@@ -180,36 +183,26 @@ export default function BucketListPage() {
 
       {items.some(i => i.done) && (
         <div>
-          <h2 className="text-xs font-medium text-stone-400 uppercase tracking-wider mb-2">Done 🎉</h2>
+          <p className="text-[10px] tracking-[0.25em] uppercase text-white/25 mb-3">Done ✓</p>
           <div className="flex flex-col gap-2">
-            {items
-              .filter(i => i.done)
-              .map(item => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-xl border border-rose-100 px-4 py-3 flex items-center gap-3 opacity-60 group"
-                >
-                  <button onClick={() => toggle(item.id)}>
-                    <div className="w-5 h-5 rounded-full bg-rose-400 border-2 border-rose-400 flex items-center justify-center">
-                      <span className="text-white text-xs leading-none">✓</span>
-                    </div>
-                  </button>
-                  <span className="text-lg">{categories[item.category].emoji}</span>
-                  <span className="flex-1 text-sm text-stone-500 line-through">{item.text}</span>
-                  <button
-                    onClick={() => remove(item.id)}
-                    className="opacity-0 group-hover:opacity-100 text-stone-300 hover:text-rose-400 text-xs transition-all"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
+            {items.filter(i => i.done).map(item => (
+              <div key={item.id} className="rounded-xl border border-white/[0.07] px-4 py-3 flex items-center gap-3 opacity-40 group" style={cardStyle}>
+                <button onClick={() => toggle(item.id)}>
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: '#c8a97e' }}>
+                    <span className="text-[#080d1a] text-[9px] font-bold leading-none">✓</span>
+                  </div>
+                </button>
+                <span className="text-base">{categories[item.category].emoji}</span>
+                <span className="flex-1 text-sm text-white/40 line-through">{item.text}</span>
+                <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-white/50 text-xs transition-all">✕</button>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
       {items.length === 0 && (
-        <div className="text-center py-12 text-stone-300">
+        <div className="text-center py-16 text-white/20">
           <p className="text-4xl mb-3">🌟</p>
           <p className="text-sm">your bucket list is empty — dream big!</p>
         </div>

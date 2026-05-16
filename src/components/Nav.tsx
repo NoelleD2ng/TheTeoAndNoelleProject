@@ -3,17 +3,21 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import {
+  Heart, CheckSquare, Calendar, MapPin, Star,
+  Code2, Camera, Sparkles, Coffee, X, Menu, LogOut,
+} from 'lucide-react'
 
 const navItems = [
-  { href: '/', label: 'Our Story', emoji: '💕' },
-  { href: '/todos', label: 'To-Do Lists', emoji: '✅' },
-  { href: '/plans', label: 'Plans', emoji: '📅' },
-  { href: '/places', label: 'Places', emoji: '📍' },
-  { href: '/bucket-list', label: 'Bucket List', emoji: '🌟' },
-  { href: '/projects', label: 'Projects', emoji: '💻' },
-  { href: '/memories', label: 'Memories', emoji: '📸' },
-  { href: '/fun-facts', label: 'Fun Facts', emoji: '✨' },
-  { href: '/date-ideas', label: 'Date Ideas', emoji: '💝' },
+  { href: '/',            label: 'Story',    icon: Heart },
+  { href: '/todos',       label: 'To-Do',    icon: CheckSquare },
+  { href: '/plans',       label: 'Plans',    icon: Calendar },
+  { href: '/places',      label: 'Places',   icon: MapPin },
+  { href: '/bucket-list', label: 'Bucket',   icon: Star },
+  { href: '/projects',    label: 'Projects', icon: Code2 },
+  { href: '/memories',    label: 'Memories', icon: Camera },
+  { href: '/fun-facts',   label: 'Facts',    icon: Sparkles },
+  { href: '/date-ideas',  label: 'Dates',    icon: Coffee },
 ]
 
 export default function Nav() {
@@ -27,77 +31,88 @@ export default function Nav() {
     router.refresh()
   }
 
-  const linkClass = (href: string) =>
-    `flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm transition-colors ${
-      pathname === href
-        ? 'bg-rose-100 text-rose-600 font-medium'
-        : 'text-stone-500 hover:bg-rose-50 hover:text-rose-500'
-    }`
-
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-white border-r border-rose-100 min-h-screen p-5 gap-5">
-        <div className="text-center pt-2">
-          <p className="text-xl font-semibold text-rose-500">Teo & Noelle</p>
-          <p className="text-xs text-stone-400 mt-1">our little world 💕</p>
+      {/* Fixed top navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-6 md:px-10 backdrop-blur-xl bg-[#080d1a]/75 border-b border-white/[0.06]">
+        {/* Logo */}
+        <Link href="/" className="font-serif text-sm tracking-[0.2em] text-white/60 hover:text-white/90 transition-colors shrink-0">
+          T & N
+        </Link>
+
+        {/* Desktop nav links — centered */}
+        <div className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-1.5 text-[11px] tracking-[0.08em] uppercase transition-colors ${
+                  active ? 'text-[#c8a97e]' : 'text-white/40 hover:text-white/75'
+                }`}
+              >
+                <Icon size={12} strokeWidth={active ? 2.5 : 1.75} />
+                {label}
+              </Link>
+            )
+          })}
         </div>
-        <nav className="flex flex-col gap-0.5 flex-1">
-          {navItems.map(item => (
-            <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <span>{item.emoji}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <button
-          onClick={handleSignOut}
-          className="text-xs text-stone-300 hover:text-rose-400 transition-colors py-1 text-center"
-        >
-          sign out
-        </button>
-      </aside>
 
-      {/* Mobile header */}
-      <header className="md:hidden sticky top-0 z-50 bg-white border-b border-rose-100 px-4 py-3 flex items-center justify-between">
-        <p className="text-lg font-semibold text-rose-500">Teo & Noelle 💕</p>
-        <button
-          onClick={() => setOpen(o => !o)}
-          aria-label="Toggle menu"
-          className="p-1 text-stone-500 flex flex-col gap-1.5"
-        >
-          <span
-            className={`block w-5 h-0.5 bg-current transition-transform origin-center ${open ? 'translate-y-2 rotate-45' : ''}`}
-          />
-          <span
-            className={`block w-5 h-0.5 bg-current transition-opacity ${open ? 'opacity-0' : ''}`}
-          />
-          <span
-            className={`block w-5 h-0.5 bg-current transition-transform origin-center ${open ? '-translate-y-2 -rotate-45' : ''}`}
-          />
-        </button>
-      </header>
-
-      {/* Mobile dropdown */}
-      {open && (
-        <div className="md:hidden bg-white border-b border-rose-100 px-4 py-3 flex flex-col gap-0.5">
-          {navItems.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={linkClass(item.href)}
-            >
-              <span>{item.emoji}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
+        <div className="flex items-center gap-4 shrink-0">
+          {/* Sign out — desktop */}
           <button
             onClick={handleSignOut}
-            className="text-xs text-stone-300 hover:text-rose-400 transition-colors py-2 text-left px-3 mt-1"
+            className="hidden lg:flex items-center gap-1.5 text-[11px] tracking-wide text-white/25 hover:text-white/55 transition-colors"
           >
-            sign out
+            <LogOut size={12} />
           </button>
+
+          {/* Hamburger — mobile */}
+          <button
+            onClick={() => setOpen(o => !o)}
+            className="lg:hidden text-white/50 hover:text-white/80 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="fixed inset-0 z-40 flex flex-col pt-14">
+          <div
+            className="absolute inset-0 bg-[#080d1a]/95 backdrop-blur-xl"
+            onClick={() => setOpen(false)}
+          />
+          <div className="relative flex flex-col gap-1 px-6 py-8">
+            {navItems.map(({ href, label, icon: Icon }) => {
+              const active = pathname === href
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm tracking-wide transition-colors ${
+                    active
+                      ? 'bg-white/[0.06] text-[#c8a97e]'
+                      : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+                  }`}
+                >
+                  <Icon size={15} />
+                  {label}
+                </Link>
+              )
+            })}
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/25 hover:text-white/50 transition-colors mt-4"
+            >
+              <LogOut size={15} />
+              Sign out
+            </button>
+          </div>
         </div>
       )}
     </>

@@ -2,8 +2,27 @@
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-playfair);
 }
 
 body {
   font-family: var(--font-sans), Arial, sans-serif;
+  background-color: #080d1a;
+  color: #f0ece4;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(200, 169, 126, 0.25);
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: #080d1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2d47;
+  border-radius: 2px;
 }
