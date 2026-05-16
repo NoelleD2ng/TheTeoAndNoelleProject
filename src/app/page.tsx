@@ -16,7 +16,7 @@ export default function OurStoryPage() {
               rgba(8,13,26,0.55) 75%,
               rgba(8,13,26,1.00) 100%
             ),
-            url('/hero.jpg') center/cover no-repeat,
+            url('/homepage photo.jpg') center/cover no-repeat,
             linear-gradient(135deg, #0d1b36 0%, #1a2a4a 50%, #0d1b36 100%)
           `,
         }}
