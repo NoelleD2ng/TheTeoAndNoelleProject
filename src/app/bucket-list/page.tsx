@@ -21,8 +21,51 @@ const categories = {
 
 type Category = keyof typeof categories
 
+const DEFAULT_ITEMS: BucketItem[] = [
+  { id: '1',  text: 'Korean BBQ',                                                          done: false, category: 'food' },
+  { id: '2',  text: 'Make a pizza together',                                               done: false, category: 'food' },
+  { id: '3',  text: 'Make cheesecake',                                                     done: false, category: 'food' },
+  { id: '4',  text: 'Go to arcade',                                                        done: false, category: 'experience' },
+  { id: '5',  text: 'Go fishing',                                                          done: false, category: 'adventure' },
+  { id: '6',  text: "Drive Teo's sister to Buffalo",                                       done: false, category: 'other' },
+  { id: '7',  text: "Cut Teo's hair",                                                      done: false, category: 'other' },
+  { id: '8',  text: "Paint Teo's room",                                                    done: false, category: 'experience' },
+  { id: '9',  text: "Go to Sara's",                                                        done: false, category: 'experience' },
+  { id: '10', text: 'Build a productivity app together',                                   done: false, category: 'learn' },
+  { id: '11', text: 'Do a research project together',                                      done: false, category: 'learn' },
+  { id: '12', text: 'Drink boba',                                                          done: false, category: 'food' },
+  { id: '13', text: 'Starbucks date',                                                      done: false, category: 'food' },
+  { id: '14', text: 'Make music together',                                                 done: false, category: 'experience' },
+  { id: '15', text: 'Watch anime together',                                                done: false, category: 'experience' },
+  { id: '16', text: 'Get Pokémon cards',                                                   done: false, category: 'experience' },
+  { id: '17', text: 'Go to Toronto',                                                       done: false, category: 'travel' },
+  { id: '18', text: 'Go to Waldameer',                                                     done: false, category: 'adventure' },
+  { id: '19', text: "Get McDonald's at 3am",                                               done: false, category: 'food' },
+  { id: '20', text: 'Go to the zoo',                                                       done: false, category: 'adventure' },
+  { id: '21', text: 'Whole day of Pokémon GO',                                             done: false, category: 'adventure' },
+  { id: '22', text: 'Food truck Fridays at Shade Beach',                                   done: false, category: 'food' },
+  { id: '23', text: 'Go to the library together',                                          done: false, category: 'learn' },
+  { id: '24', text: 'Bowling at Round One',                                                done: false, category: 'experience' },
+  { id: '25', text: 'Try Tipsy Bean café',                                                 done: false, category: 'food' },
+  { id: '26', text: 'Hackathon-style coding session outside the apartment',                done: false, category: 'learn' },
+  { id: '27', text: 'Beach at night',                                                      done: false, category: 'adventure' },
+  { id: '28', text: 'Escape room',                                                         done: false, category: 'adventure' },
+  { id: '29', text: 'Board game night',                                                    done: false, category: 'experience' },
+  { id: '30', text: 'Bath bombs',                                                          done: false, category: 'experience' },
+  { id: '31', text: 'Make summer-themed relationship bracelets',                           done: false, category: 'experience' },
+  { id: '32', text: 'Take new photo booth photos',                                         done: false, category: 'experience' },
+  { id: '33', text: 'Makeout in the rain',                                                 done: false, category: 'adventure' },
+  { id: '34', text: 'Build and host a website on Vercel together',                         done: false, category: 'learn' },
+  { id: '35', text: 'Role play 😈',                                                        done: false, category: 'other' },
+  { id: '36', text: 'One person picks snacks, other picks the movie',                      done: false, category: 'experience' },
+  { id: '37', text: 'Watch a YouTube rabbit hole together',                                done: false, category: 'experience' },
+  { id: '38', text: 'Learn about investing together',                                      done: false, category: 'learn' },
+  { id: '39', text: 'Play It Takes Two or another co-op game',                             done: false, category: 'experience' },
+  { id: '40', text: 'Watch a documentary about AI or tech',                                done: false, category: 'learn' },
+]
+
 export default function BucketListPage() {
-  const [items, setItems, hydrated] = useLocalStorage<BucketItem[]>('tno-bucket', [])
+  const [items, setItems, hydrated] = useLocalStorage<BucketItem[]>('tno-bucket', DEFAULT_ITEMS)
   const [text, setText] = useState('')
   const [category, setCategory] = useState<Category>('experience')
 
