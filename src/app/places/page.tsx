@@ -24,7 +24,7 @@ export default function PlacesPage() {
   const [query, setQuery] = useState('')
   const [geoResults, setGeoResults] = useState<GeoResult[]>([])
   const [geoLoading, setGeoLoading] = useState(false)
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>()
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchRef = useRef<HTMLDivElement>(null)
 
   // sidebar state
@@ -71,7 +71,9 @@ export default function PlacesPage() {
   // geocoding debounce
   useEffect(() => {
     if (!query.trim()) { setGeoResults([]); return }
-    clearTimeout(searchTimer.current)
+    if (searchTimer.current) {
+      clearTimeout(searchTimer.current)
+    }
     searchTimer.current = setTimeout(async () => {
       setGeoLoading(true)
       try {
@@ -80,7 +82,11 @@ export default function PlacesPage() {
       } catch { setGeoResults([]) }
       setGeoLoading(false)
     }, 450)
-    return () => clearTimeout(searchTimer.current)
+    return () => {
+      if (searchTimer.current) {
+        clearTimeout(searchTimer.current)
+      }
+    }
   }, [query])
 
   // close search on outside click
