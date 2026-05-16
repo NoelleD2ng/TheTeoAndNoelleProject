@@ -59,7 +59,7 @@ export default function PlacesPage() {
       <div className="mb-8 flex items-start justify-between">
         <div>
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">explore</p>
-          <h1 className="text-3xl font-light text-white" style={{ fontFamily: 'var(--font-playfair)' }}>Places</h1>
+          <h1 className="text-3xl font-light text-white" >Places</h1>
           <p className="text-white/35 mt-1 text-sm">places we want to go and places we&apos;ve been</p>
         </div>
         <button onClick={() => setShowForm(s => !s)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ background: '#c8a97e', color: '#080d1a' }}>+ Add</button>

@@ -25,7 +25,7 @@ export default function OurStoryPage() {
         <div className="text-center px-6 mt-10">
           <h1
             className="text-6xl md:text-8xl lg:text-9xl font-light text-white tracking-wide leading-none"
-            style={{ fontFamily: 'var(--font-playfair)' }}
+            
           >
             Teo & Noelle
           </h1>
@@ -47,7 +47,7 @@ export default function OurStoryPage() {
           {/* Edit this section to tell your story */}
           <p
             className="text-white/65 text-lg md:text-xl leading-relaxed italic font-light"
-            style={{ fontFamily: 'var(--font-playfair)' }}
+            
           >
             &ldquo;Since the day we met, everything has felt a little more colorful.
             This is our little corner of the internet &mdash; just for us.&rdquo;

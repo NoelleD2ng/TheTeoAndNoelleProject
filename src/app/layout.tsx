@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import { Geist, Playfair_Display } from 'next/font/google'
+import { DM_Sans } from 'next/font/google'
 import './globals.css'
 import NavWrapper from '@/components/NavWrapper'
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' })
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-geist-sans', weight: ['300', '400', '500', '600'] })
 
 export const metadata: Metadata = {
   title: 'Teo & Noelle',
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} ${playfair.variable}`}>
+    <html lang="en" className={dmSans.variable}>
       <body className="min-h-screen bg-[#080d1a] text-[#f0ece4] antialiased">
         <NavWrapper />
         {children}

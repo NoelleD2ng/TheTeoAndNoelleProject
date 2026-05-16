@@ -57,7 +57,7 @@ export default function DateIdeasPage() {
       <div className="mb-6 flex items-start justify-between">
         <div>
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">romance</p>
-          <h1 className="text-3xl font-light text-white" style={{ fontFamily: 'var(--font-playfair)' }}>Date Ideas</h1>
+          <h1 className="text-3xl font-light text-white" >Date Ideas</h1>
           <p className="text-white/35 mt-1 text-sm">{ideas.filter(i => i.done).length} done · {ideas.filter(i => !i.done).length} ideas left</p>
         </div>
         <button onClick={() => setShowForm(s => !s)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ background: '#c8a97e', color: '#080d1a' }}>+ Add</button>

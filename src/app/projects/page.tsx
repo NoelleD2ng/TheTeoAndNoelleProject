@@ -46,7 +46,7 @@ export default async function ProjectsPage() {
     <div className="pt-20 p-6 md:p-10">
       <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">our work</p>
-        <h1 className="text-3xl font-light text-white" style={{ fontFamily: 'var(--font-playfair)' }}>Projects</h1>
+        <h1 className="text-3xl font-light text-white" >Projects</h1>
         <p className="text-white/35 mt-1 text-sm">our computer science projects on GitHub</p>
       </div>
 

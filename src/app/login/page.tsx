@@ -40,7 +40,7 @@ export default function LoginPage() {
         <div className="text-center mb-10">
           <h1
             className="text-4xl font-light text-white tracking-wide"
-            style={{ fontFamily: 'var(--font-playfair)' }}
+            
           >
             Teo & Noelle
           </h1>

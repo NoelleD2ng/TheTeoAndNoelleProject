@@ -2,7 +2,6 @@
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-playfair);
 }
 
 body {

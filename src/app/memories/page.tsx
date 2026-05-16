@@ -5,7 +5,7 @@ export default function MemoriesPage() {
     <div className="pt-20 p-6 md:p-10">
       <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">together</p>
-        <h1 className="text-3xl font-light text-white" style={{ fontFamily: 'var(--font-playfair)' }}>Memories</h1>
+        <h1 className="text-3xl font-light text-white" >Memories</h1>
         <p className="text-white/35 mt-1 text-sm">our favorite moments together</p>
       </div>
 

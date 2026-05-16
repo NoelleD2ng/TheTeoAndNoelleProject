@@ -72,7 +72,7 @@ export default function FunFactsPage() {
     <div className="pt-20 p-6 md:p-10">
       <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">about us</p>
-        <h1 className="text-3xl font-light text-white" style={{ fontFamily: 'var(--font-playfair)' }}>Fun Facts</h1>
+        <h1 className="text-3xl font-light text-white" >Fun Facts</h1>
         <p className="text-white/35 mt-1 text-sm">little things that make us, us</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
