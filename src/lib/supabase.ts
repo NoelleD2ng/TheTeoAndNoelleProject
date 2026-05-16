@@ -12,3 +12,14 @@ export type Memory = {
   uploaded_by: string | null
   created_at: string
 }
+
+export type Place = {
+  id: string
+  name: string
+  lat: number
+  lng: number
+  notes: string | null
+  status: 'want-to-go' | 'visited'
+  linked_memory_ids: string[] | null
+  created_at: string
+}
