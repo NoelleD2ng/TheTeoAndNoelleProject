@@ -115,8 +115,8 @@ export default function BucketListPage() {
     <div className="pt-20 p-6 md:p-10 max-w-2xl">
       <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">our list</p>
-        <h1 className="text-3xl font-light text-white" >Bucket List</h1>
-        <p className="text-white/35 mt-1 text-sm">
+        <h1 className="text-3xl font-bold text-white" >Bucket List</h1>
+        <p className="text-white/60 mt-1 text-sm">
           {items.length === 0
             ? 'all the things we want to do together'
             : `${items.filter(i => i.done).length} of ${items.length} done`}
@@ -128,7 +128,7 @@ export default function BucketListPage() {
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="add something to our bucket list..."
-          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none"
+          className="w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder:text-white/45 focus:outline-none"
           style={inputStyle}
         />
         <div className="flex gap-2 flex-wrap">
@@ -140,7 +140,7 @@ export default function BucketListPage() {
               className={`px-3 py-1 rounded-full text-xs transition-colors ${
                 category === cat
                   ? 'text-[#080d1a]'
-                  : 'text-white/40 hover:text-white/70'
+                  : 'text-white/65 hover:text-white/90'
               }`}
               style={category === cat ? { background: '#c8a97e' } : { background: 'rgba(255,255,255,0.06)' }}
             >
@@ -159,7 +159,7 @@ export default function BucketListPage() {
 
       {remaining > 0 && (
         <div className="mb-4">
-          <p className="text-[10px] tracking-[0.25em] uppercase text-white/25 mb-3">Still to do</p>
+          <p className="text-[10px] tracking-[0.25em] uppercase text-white/45 mb-3">Still to do</p>
           <div className="flex flex-col gap-2">
             {items
               .filter(i => !i.done)
@@ -173,8 +173,8 @@ export default function BucketListPage() {
                     <div className="w-4 h-4 rounded-full border border-white/20 hover:border-[#c8a97e]/50 transition-colors" />
                   </button>
                   <span className="text-base">{categories[item.category].emoji}</span>
-                  <span className="flex-1 text-sm text-white/70">{item.text}</span>
-                  <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-white/50 text-xs transition-all">✕</button>
+                  <span className="flex-1 text-sm text-white/90">{item.text}</span>
+                  <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-white/75 text-xs transition-all">✕</button>
                 </div>
               ))}
           </div>
@@ -183,7 +183,7 @@ export default function BucketListPage() {
 
       {items.some(i => i.done) && (
         <div>
-          <p className="text-[10px] tracking-[0.25em] uppercase text-white/25 mb-3">Done ✓</p>
+          <p className="text-[10px] tracking-[0.25em] uppercase text-white/45 mb-3">Done ✓</p>
           <div className="flex flex-col gap-2">
             {items.filter(i => i.done).map(item => (
               <div key={item.id} className="rounded-xl border border-white/[0.07] px-4 py-3 flex items-center gap-3 opacity-40 group" style={cardStyle}>
@@ -193,8 +193,8 @@ export default function BucketListPage() {
                   </div>
                 </button>
                 <span className="text-base">{categories[item.category].emoji}</span>
-                <span className="flex-1 text-sm text-white/40 line-through">{item.text}</span>
-                <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-white/50 text-xs transition-all">✕</button>
+                <span className="flex-1 text-sm text-white/65 line-through">{item.text}</span>
+                <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-white/75 text-xs transition-all">✕</button>
               </div>
             ))}
           </div>
@@ -202,7 +202,7 @@ export default function BucketListPage() {
       )}
 
       {items.length === 0 && (
-        <div className="text-center py-16 text-white/20">
+        <div className="text-center py-16 text-white/40">
           <p className="text-4xl mb-3">🌟</p>
           <p className="text-sm">your bucket list is empty — dream big!</p>
         </div>

@@ -18,13 +18,13 @@ type Category = keyof typeof categories
 
 const cardStyle = { background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)' }
 const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }
-const inputCls = 'w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder:text-white/25 focus:outline-none'
+const inputCls = 'w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder:text-white/45 focus:outline-none'
 
 function Stars({ rating, onRate }: { rating: number; onRate: (n: number) => void }) {
   return (
     <div className="flex gap-0.5">
       {[1,2,3,4,5].map(n => (
-        <button key={n} onClick={() => onRate(n)} className={`text-sm transition-colors ${n <= rating ? 'text-[#c8a97e]' : 'text-white/15 hover:text-white/35'}`}>♥</button>
+        <button key={n} onClick={() => onRate(n)} className={`text-sm transition-colors ${n <= rating ? 'text-[#c8a97e]' : 'text-white/15 hover:text-white/60'}`}>♥</button>
       ))}
     </div>
   )
@@ -57,8 +57,8 @@ export default function DateIdeasPage() {
       <div className="mb-6 flex items-start justify-between">
         <div>
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">romance</p>
-          <h1 className="text-3xl font-light text-white" >Date Ideas</h1>
-          <p className="text-white/35 mt-1 text-sm">{ideas.filter(i => i.done).length} done · {ideas.filter(i => !i.done).length} ideas left</p>
+          <h1 className="text-3xl font-bold text-white" >Date Ideas</h1>
+          <p className="text-white/60 mt-1 text-sm">{ideas.filter(i => i.done).length} done · {ideas.filter(i => !i.done).length} ideas left</p>
         </div>
         <button onClick={() => setShowForm(s => !s)} className="px-4 py-2 rounded-xl text-sm font-medium" style={{ background: '#c8a97e', color: '#080d1a' }}>+ Add</button>
       </div>
@@ -69,7 +69,7 @@ export default function DateIdeasPage() {
           <div className="flex gap-2 flex-wrap">
             {(Object.keys(categories) as Category[]).map(cat => (
               <button key={cat} type="button" onClick={() => setCategory(cat)}
-                className={`px-3 py-1 rounded-full text-xs transition-colors ${category === cat ? 'text-[#080d1a]' : 'text-white/40 hover:text-white/70'}`}
+                className={`px-3 py-1 rounded-full text-xs transition-colors ${category === cat ? 'text-[#080d1a]' : 'text-white/65 hover:text-white/90'}`}
                 style={category === cat ? { background: '#c8a97e' } : { background: 'rgba(255,255,255,0.06)' }}>
                 {categories[cat].emoji} {categories[cat].label}
               </button>
@@ -78,7 +78,7 @@ export default function DateIdeasPage() {
           <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Notes..." className={inputCls} style={inputStyle} />
           <div className="flex gap-2">
             <button type="submit" className="px-4 py-2 rounded-xl text-sm font-medium" style={{ background: '#c8a97e', color: '#080d1a' }}>Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-sm text-white/35 hover:text-white/60 transition-colors">Cancel</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-xl text-sm text-white/60 hover:text-white/80 transition-colors">Cancel</button>
           </div>
         </form>
       )}
@@ -87,7 +87,7 @@ export default function DateIdeasPage() {
         <div className="flex gap-2 mb-4">
           {(['all', 'todo', 'done'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1 rounded-full text-xs transition-colors ${filter === f ? 'text-[#080d1a]' : 'text-white/35 hover:text-white/60'}`}
+              className={`px-3 py-1 rounded-full text-xs transition-colors ${filter === f ? 'text-[#080d1a]' : 'text-white/60 hover:text-white/80'}`}
               style={filter === f ? { background: '#c8a97e' } : { background: 'rgba(255,255,255,0.05)' }}>
               {f === 'all' ? 'All' : f === 'todo' ? 'Ideas' : 'Done'}
             </button>
@@ -97,7 +97,7 @@ export default function DateIdeasPage() {
 
       <div className="flex flex-col gap-3">
         {filtered.length === 0 && ideas.length === 0 && (
-          <div className="text-center py-16 text-white/20">
+          <div className="text-center py-16 text-white/40">
             <p className="text-4xl mb-3">💝</p>
             <p className="text-sm">no date ideas yet — get creative!</p>
           </div>
@@ -112,13 +112,13 @@ export default function DateIdeasPage() {
               </button>
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`text-sm font-medium ${idea.done ? 'line-through text-white/30' : 'text-white/75'}`}>{idea.title}</span>
-                  <span className="text-xs text-white/25">{categories[idea.category].emoji} {categories[idea.category].label}</span>
+                  <span className={`text-sm font-medium ${idea.done ? 'line-through text-white/55' : 'text-white/90'}`}>{idea.title}</span>
+                  <span className="text-xs text-white/45">{categories[idea.category].emoji} {categories[idea.category].label}</span>
                 </div>
-                {idea.notes && <p className="text-xs text-white/30 mt-0.5">{idea.notes}</p>}
+                {idea.notes && <p className="text-xs text-white/55 mt-0.5">{idea.notes}</p>}
                 {idea.done && <div className="mt-2"><Stars rating={idea.rating} onRate={r => rate(idea.id, r)} /></div>}
               </div>
-              <button onClick={() => remove(idea.id)} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-white/50 text-xs transition-all shrink-0">✕</button>
+              <button onClick={() => remove(idea.id)} className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-white/75 text-xs transition-all shrink-0">✕</button>
             </div>
           </div>
         ))}

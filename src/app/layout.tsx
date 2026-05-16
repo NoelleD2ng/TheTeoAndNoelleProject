@@ -3,7 +3,7 @@ import { DM_Sans } from 'next/font/google'
 import './globals.css'
 import NavWrapper from '@/components/NavWrapper'
 
-const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-geist-sans', weight: ['300', '400', '500', '600'] })
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-geist-sans', weight: ['400', '500', '600', '700'] })
 
 export const metadata: Metadata = {
   title: 'Teo & Noelle',

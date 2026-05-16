@@ -24,12 +24,12 @@ export default function OurStoryPage() {
         {/* Hero text */}
         <div className="text-center px-6 mt-10">
           <h1
-            className="text-6xl md:text-8xl lg:text-9xl font-light text-white tracking-wide leading-none"
+            className="text-6xl md:text-8xl lg:text-9xl font-bold text-white tracking-wide leading-none"
             
           >
             Teo & Noelle
           </h1>
-          <p className="mt-5 text-[11px] md:text-xs tracking-[0.5em] uppercase text-white/45 font-light">
+          <p className="mt-5 text-[11px] md:text-xs tracking-[0.5em] uppercase text-white/70 font-light">
             our little world
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function OurStoryPage() {
         >
           {/* Edit this section to tell your story */}
           <p
-            className="text-white/65 text-lg md:text-xl leading-relaxed italic font-light"
+            className="text-white/85 text-lg md:text-xl leading-relaxed italic font-medium"
             
           >
             &ldquo;Since the day we met, everything has felt a little more colorful.
@@ -60,9 +60,9 @@ export default function OurStoryPage() {
               >
                 How We Met
               </h2>
-              <p className="text-white/45 text-sm leading-relaxed">
+              <p className="text-white/70 text-sm leading-relaxed">
                 [Tell your story here — edit this in{' '}
-                <code className="text-white/30 text-xs">src/app/page.tsx</code>]
+                <code className="text-white/55 text-xs">src/app/page.tsx</code>]
               </p>
             </section>
 
@@ -80,7 +80,7 @@ export default function OurStoryPage() {
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4 items-start">
                     <span className="text-[#c8a97e]/50 text-xs shrink-0 pt-0.5 w-28">{item.date}</span>
-                    <span className="text-white/40 text-sm">{item.event}</span>
+                    <span className="text-white/65 text-sm">{item.event}</span>
                   </div>
                 ))}
               </div>

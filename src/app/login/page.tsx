@@ -39,12 +39,12 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <h1
-            className="text-4xl font-light text-white tracking-wide"
+            className="text-4xl font-bold text-white tracking-wide"
             
           >
             Teo & Noelle
           </h1>
-          <p className="mt-2 text-[10px] tracking-[0.5em] uppercase text-white/35">
+          <p className="mt-2 text-[10px] tracking-[0.5em] uppercase text-white/60">
             our little world
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function LoginPage() {
           style={{ background: 'rgba(10,18,40,0.7)', backdropFilter: 'blur(20px)' }}
         >
           <div>
-            <label className="text-[10px] tracking-[0.2em] uppercase text-white/35 block mb-2">
+            <label className="text-[10px] tracking-[0.2em] uppercase text-white/60 block mb-2">
               Password
             </label>
             <input
@@ -63,7 +63,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="enter our password"
-              className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/20 focus:outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/40 focus:outline-none transition-all"
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
