@@ -64,10 +64,27 @@ const DEFAULT_ITEMS: BucketItem[] = [
   { id: '40', text: 'Watch a documentary about AI or tech',                                done: false, category: 'learn' },
 ]
 
+// Bump this number whenever DEFAULT_ITEMS is updated so both browsers sync
+const BUCKET_VERSION = 1
+
 export default function BucketListPage() {
   const [items, setItems, hydrated] = useLocalStorage<BucketItem[]>('tno-bucket', DEFAULT_ITEMS)
+  const [version, setVersion] = useLocalStorage<number>('tno-bucket-version', 0)
   const [text, setText] = useState('')
   const [category, setCategory] = useState<Category>('experience')
+
+  if (hydrated && version !== BUCKET_VERSION) {
+    setItems(prev => {
+      const existingIds = new Set(DEFAULT_ITEMS.map(i => i.id))
+      const userAdded = prev.filter(i => !existingIds.has(i.id))
+      const merged = DEFAULT_ITEMS.map(def => {
+        const existing = prev.find(p => p.id === def.id)
+        return existing ? { ...def, done: existing.done } : def
+      })
+      return [...merged, ...userAdded]
+    })
+    setVersion(BUCKET_VERSION)
+  }
 
   function addItem(e: React.FormEvent) {
     e.preventDefault()
