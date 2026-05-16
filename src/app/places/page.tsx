@@ -61,6 +61,8 @@ export default function PlacesPage() {
   const [pickerSelection, setPickerSelection] = useState<Set<string>>(new Set())
 
   const [showMemoryCard, setShowMemoryCard] = useState(false)
+  const [photosPopped, setPhotosPopped] = useState(false)
+  const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const selectedPlace = places.find(p => p.id === selectedId) ?? null
   const wantCount = places.filter(p => p.status === 'want-to-go').length
@@ -71,6 +73,24 @@ export default function PlacesPage() {
     const matchSearch = !sidebarSearch || p.name.toLowerCase().includes(sidebarSearch.toLowerCase())
     return matchFilter && matchSearch
   })
+
+  const FLOAT_POSITIONS = [
+    { dx: -145, dy: -105, rot: -12, delay: 0 },
+    { dx: 115,  dy: -118, rot:   8, delay: 55 },
+    { dx: -178, dy:   18, rot:  -5, delay: 95 },
+    { dx: 162,  dy:   22, rot:  11, delay: 40 },
+    { dx: -118, dy:  145, rot:  -8, delay: 75 },
+    { dx: 105,  dy:  148, rot:   6, delay: 115 },
+  ]
+
+  useEffect(() => {
+    if (popTimer.current) clearTimeout(popTimer.current)
+    setPhotosPopped(false)
+    if (selectedId) {
+      popTimer.current = setTimeout(() => setPhotosPopped(true), 280)
+    }
+    return () => { if (popTimer.current) clearTimeout(popTimer.current) }
+  }, [selectedId])
 
   useEffect(() => {
     async function fetchPlaces() {
@@ -511,51 +531,49 @@ export default function PlacesPage() {
             onSelectPlace={selectPlace}
           />
 
-          {selectedPlace && linkedMemories.length > 0 && (
-            <div
-              className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[500] rounded-2xl overflow-hidden"
-              style={{
-                background: 'rgba(250,248,245,0.97)',
-                backdropFilter: 'blur(16px)',
-                border: '1px solid #E8DDD4',
-                boxShadow: '0 8px 32px rgba(44,26,14,0.28)',
-                animation: 'strip-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both',
-                maxWidth: 'calc(100vw - 320px - 48px)',
-              }}
-            >
-              <div className="px-4 pt-3 pb-2 flex items-center justify-between gap-6">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xs shrink-0" style={{ color: selectedPlace.status === 'visited' ? '#4ade80' : '#c8a97e' }}>
-                    {selectedPlace.status === 'visited' ? '✓' : '♥'}
-                  </span>
-                  <p className="text-xs font-semibold text-[#2C1A0E] truncate">{selectedPlace.name}</p>
-                  <p className="text-[10px] text-[#7A6155]/40 shrink-0">{linkedMemories.length} photo{linkedMemories.length !== 1 ? 's' : ''}</p>
-                </div>
-                <button
-                  onClick={openMemoryCard}
-                  className="text-[10px] text-[#C4784A]/70 hover:text-[#C4784A] transition-colors shrink-0 whitespace-nowrap"
-                >
-                  Open memory ✦
-                </button>
-              </div>
-              <div className="flex gap-2 px-3 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-                {linkedMemories.map(m => (
-                  <button
-                    key={m.id}
-                    onClick={openMemoryCard}
-                    className="shrink-0 rounded-xl overflow-hidden transition-transform hover:scale-105 active:scale-95"
-                    style={{ width: 80, height: 80, background: '#F5EFE8' }}
+          {selectedPlace && linkedMemories.length > 0 && linkedMemories.slice(0, 6).map((m, i) => {
+            const pos = FLOAT_POSITIONS[i % FLOAT_POSITIONS.length]
+            return (
+              <div
+                key={m.id}
+                className="absolute"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  zIndex: 600,
+                  pointerEvents: photosPopped ? 'auto' : 'none',
+                  transform: photosPopped
+                    ? `translate(calc(-50% + ${pos.dx}px), calc(-50% + ${pos.dy}px)) rotate(${pos.rot}deg)`
+                    : `translate(-50%, -50%) scale(0) rotate(0deg)`,
+                  opacity: photosPopped ? 1 : 0,
+                  transition: `transform 0.6s cubic-bezier(0.34,1.56,0.64,1) ${photosPopped ? pos.delay : 0}ms, opacity 0.35s ease ${photosPopped ? pos.delay : 0}ms`,
+                }}
+                onClick={openMemoryCard}
+              >
+                <div style={{ animation: photosPopped ? `photo-bob 2.8s ease-in-out ${pos.delay + 650}ms infinite` : 'none' }}>
+                  <div
+                    className="cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                    style={{
+                      width: 78,
+                      height: 78,
+                      borderRadius: 12,
+                      overflow: 'hidden',
+                      border: '3.5px solid rgba(255,255,255,0.92)',
+                      boxShadow: '0 6px 22px rgba(0,0,0,0.38), 0 2px 8px rgba(44,26,14,0.22)',
+                    }}
                   >
                     {m.image_url.toLowerCase().endsWith('.pdf') ? (
-                      <div className="w-full h-full flex items-center justify-center text-2xl">📄</div>
+                      <div className="w-full h-full flex items-center justify-center" style={{ background: '#F5EFE8' }}>
+                        <span className="text-xl">📄</span>
+                      </div>
                     ) : (
                       <img src={m.image_url} alt={m.caption ?? ''} className="w-full h-full object-cover" />
                     )}
-                  </button>
-                ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })}
         </div>
       </div>
 
@@ -751,9 +769,9 @@ export default function PlacesPage() {
           from { opacity: 0; transform: scale(0.86) translateY(24px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes strip-in {
-          from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.95); }
-          to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        @keyframes photo-bob {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-7px); }
         }
       `}</style>
     </div>
