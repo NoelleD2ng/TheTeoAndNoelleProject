@@ -22,7 +22,7 @@ export default function MemoriesPage() {
 
   async function fetchMemories() {
     const { data } = await supabase
-      .from('Memories')
+      .from('memories')
       .select('*')
       .order('created_at', { ascending: false })
     setMemories(data ?? [])
@@ -58,11 +58,17 @@ export default function MemoriesPage() {
       .from('Memories')
       .getPublicUrl(path)
 
-    await supabase.from('Memories').insert({
+    const { error: insertError } = await supabase.from('memories').insert({
       image_url: publicUrl,
       caption: caption.trim() || null,
       uploaded_by: uploadedBy.trim() || null,
     })
+
+    if (insertError) {
+      alert('Save failed: ' + insertError.message)
+      setUploading(false)
+      return
+    }
 
     setFile(null)
     setPreview(null)
@@ -75,7 +81,7 @@ export default function MemoriesPage() {
   async function deleteMemory(memory: Memory) {
     const path = memory.image_url.split('/memories/')[1]
     await supabase.storage.from('Memories').remove([path])
-    await supabase.from('Memories').delete().eq('id', memory.id)
+    await supabase.from('memories').delete().eq('id', memory.id)
     setLightbox(null)
     setMemories(prev => prev.filter(m => m.id !== memory.id))
   }
@@ -150,35 +156,37 @@ export default function MemoriesPage() {
           <p className="text-sm">no memories yet — upload your first one!</p>
         </div>
       ) : (
-        <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {memories.map(m => {
-            const isPdf = m.image_url.endsWith('.pdf')
+            const isPdf = m.image_url.toLowerCase().includes('.pdf')
             return isPdf ? (
               <a
                 key={m.id}
                 href={m.image_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="break-inside-avoid block rounded-2xl border border-white/[0.15] p-4 hover:border-white/30 transition-colors"
+                className="aspect-square rounded-2xl border border-white/[0.15] p-4 flex flex-col items-center justify-center hover:border-white/30 transition-colors"
                 style={cardStyle}
               >
                 <p className="text-3xl mb-2">📄</p>
-                <p className="text-sm text-white/80 truncate">{m.caption ?? 'PDF'}</p>
+                <p className="text-xs text-white/80 truncate w-full text-center">{m.caption ?? 'PDF'}</p>
                 {m.uploaded_by && <p className="text-xs text-white/40 mt-1">{m.uploaded_by}</p>}
               </a>
             ) : (
               <div
                 key={m.id}
-                className="break-inside-avoid cursor-pointer group relative"
+                className="aspect-square cursor-pointer group relative rounded-2xl overflow-hidden"
                 onClick={() => setLightbox(m)}
               >
                 <img
                   src={m.image_url}
                   alt={m.caption ?? 'memory'}
-                  className="w-full rounded-2xl object-cover group-hover:opacity-80 transition-opacity"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 {m.caption && (
-                  <p className="text-xs text-white/60 mt-1 px-1 truncate">{m.caption}</p>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p className="text-xs text-white truncate">{m.caption}</p>
+                  </div>
                 )}
               </div>
             )
