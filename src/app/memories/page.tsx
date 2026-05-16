@@ -79,7 +79,7 @@ export default function MemoriesPage() {
   }
 
   async function deleteMemory(memory: Memory) {
-    const path = memory.image_url.split('/memories/')[1]
+    const path = memory.image_url.split('/Memories/')[1]
     await supabase.storage.from('Memories').remove([path])
     await supabase.from('memories').delete().eq('id', memory.id)
     setLightbox(null)
@@ -160,18 +160,28 @@ export default function MemoriesPage() {
           {memories.map(m => {
             const isPdf = m.image_url.toLowerCase().includes('.pdf')
             return isPdf ? (
-              <a
+              <div
                 key={m.id}
-                href={m.image_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="aspect-square rounded-2xl border border-white/[0.15] p-4 flex flex-col items-center justify-center hover:border-white/30 transition-colors"
+                className="aspect-square rounded-2xl border border-white/[0.15] p-4 flex flex-col items-center justify-center relative group"
                 style={cardStyle}
               >
-                <p className="text-3xl mb-2">📄</p>
-                <p className="text-xs text-white/80 truncate w-full text-center">{m.caption ?? 'PDF'}</p>
-                {m.uploaded_by && <p className="text-xs text-white/40 mt-1">{m.uploaded_by}</p>}
-              </a>
+                <a
+                  href={m.image_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-2"
+                >
+                  <p className="text-3xl">📄</p>
+                  <p className="text-xs text-white/80 truncate w-full text-center">{m.caption ?? 'PDF'}</p>
+                  {m.uploaded_by && <p className="text-xs text-white/40">{m.uploaded_by}</p>}
+                </a>
+                <button
+                  onClick={() => deleteMemory(m)}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-xs text-white/30 hover:text-white/70 transition-all"
+                >
+                  ✕
+                </button>
+              </div>
             ) : (
               <div
                 key={m.id}
