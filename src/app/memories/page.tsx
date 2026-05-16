@@ -33,7 +33,7 @@ export default function MemoriesPage() {
     const f = e.target.files?.[0]
     if (!f) return
     setFile(f)
-    setPreview(URL.createObjectURL(f))
+    setPreview(f.type === 'application/pdf' ? 'pdf' : URL.createObjectURL(f))
   }
 
   async function upload(e: React.FormEvent) {
@@ -100,7 +100,12 @@ export default function MemoriesPage() {
           className="border-2 border-dashed border-white/20 rounded-xl p-6 text-center cursor-pointer hover:border-white/40 transition-colors mb-3"
           onClick={() => fileRef.current?.click()}
         >
-          {preview ? (
+          {preview === 'pdf' ? (
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-4xl">📄</p>
+              <p className="text-sm text-white/60">{file?.name}</p>
+            </div>
+          ) : preview ? (
             <img src={preview} alt="preview" className="max-h-48 mx-auto rounded-lg object-cover" />
           ) : (
             <>
@@ -109,7 +114,7 @@ export default function MemoriesPage() {
             </>
           )}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} className="hidden" />
+        <input ref={fileRef} type="file" accept="image/*,application/pdf" onChange={onFileChange} className="hidden" />
 
         <input
           value={caption}
@@ -146,22 +151,38 @@ export default function MemoriesPage() {
         </div>
       ) : (
         <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
-          {memories.map(m => (
-            <div
-              key={m.id}
-              className="break-inside-avoid cursor-pointer group relative"
-              onClick={() => setLightbox(m)}
-            >
-              <img
-                src={m.image_url}
-                alt={m.caption ?? 'memory'}
-                className="w-full rounded-2xl object-cover group-hover:opacity-80 transition-opacity"
-              />
-              {m.caption && (
-                <p className="text-xs text-white/60 mt-1 px-1 truncate">{m.caption}</p>
-              )}
-            </div>
-          ))}
+          {memories.map(m => {
+            const isPdf = m.image_url.endsWith('.pdf')
+            return isPdf ? (
+              <a
+                key={m.id}
+                href={m.image_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="break-inside-avoid block rounded-2xl border border-white/[0.15] p-4 hover:border-white/30 transition-colors"
+                style={cardStyle}
+              >
+                <p className="text-3xl mb-2">📄</p>
+                <p className="text-sm text-white/80 truncate">{m.caption ?? 'PDF'}</p>
+                {m.uploaded_by && <p className="text-xs text-white/40 mt-1">{m.uploaded_by}</p>}
+              </a>
+            ) : (
+              <div
+                key={m.id}
+                className="break-inside-avoid cursor-pointer group relative"
+                onClick={() => setLightbox(m)}
+              >
+                <img
+                  src={m.image_url}
+                  alt={m.caption ?? 'memory'}
+                  className="w-full rounded-2xl object-cover group-hover:opacity-80 transition-opacity"
+                />
+                {m.caption && (
+                  <p className="text-xs text-white/60 mt-1 px-1 truncate">{m.caption}</p>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 
