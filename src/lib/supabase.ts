@@ -13,6 +13,16 @@ export type Memory = {
   created_at: string
 }
 
+export type PlaceMetadata = {
+  rating?: number
+  visit_date?: string
+  what_happened_here?: string
+  funniest_moment?: string
+  journal_entry?: string
+  playlist_url?: string
+  voice_note_url?: string
+}
+
 export type Place = {
   id: string
   name: string
@@ -21,5 +31,6 @@ export type Place = {
   notes: string | null
   status: 'want-to-go' | 'visited'
   linked_memory_ids: string[] | null
+  metadata: PlaceMetadata | null
   created_at: string
 }
