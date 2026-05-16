@@ -122,17 +122,32 @@ export default function PlacesPage() {
   }, [])
 
   useEffect(() => {
-    if (!query.trim()) { setGeoResults([]); return }
-    if (searchTimer.current) clearTimeout(searchTimer.current)
+    if (searchTimer.current) {
+      clearTimeout(searchTimer.current)
+    }
+
+
     searchTimer.current = setTimeout(async () => {
+      if (!query.trim()) {
+        setGeoResults([])
+        return
+      }
+
       setGeoLoading(true)
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`)
         setGeoResults(await res.json())
-      } catch { setGeoResults([]) }
+      } catch {
+        setGeoResults([])
+      }
       setGeoLoading(false)
     }, 450)
-    return () => { if (searchTimer.current) clearTimeout(searchTimer.current) }
+
+    return () => {
+      if (searchTimer.current) {
+        clearTimeout(searchTimer.current)
+      }
+    }
   }, [query])
 
   useEffect(() => {

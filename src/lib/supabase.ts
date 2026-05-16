@@ -2,7 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    // Skip auth.getSession() on every request — this app uses cookie auth,
+    // not Supabase Auth, so returning null falls back to the anon key.
+    accessToken: async () => null,
+  }
 )
 
 export type Memory = {
