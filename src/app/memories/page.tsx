@@ -22,7 +22,7 @@ export default function MemoriesPage() {
 
   async function fetchMemories() {
     const { data } = await supabase
-      .from('memories')
+      .from('Memories')
       .select('*')
       .order('created_at', { ascending: false })
     setMemories(data ?? [])
@@ -45,7 +45,7 @@ export default function MemoriesPage() {
     const path = `${Date.now()}.${ext}`
 
     const { error: uploadError } = await supabase.storage
-      .from('memories')
+      .from('Memories')
       .upload(path, file)
 
     if (uploadError) {
@@ -55,10 +55,10 @@ export default function MemoriesPage() {
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('memories')
+      .from('Memories')
       .getPublicUrl(path)
 
-    await supabase.from('memories').insert({
+    await supabase.from('Memories').insert({
       image_url: publicUrl,
       caption: caption.trim() || null,
       uploaded_by: uploadedBy.trim() || null,
@@ -74,8 +74,8 @@ export default function MemoriesPage() {
 
   async function deleteMemory(memory: Memory) {
     const path = memory.image_url.split('/memories/')[1]
-    await supabase.storage.from('memories').remove([path])
-    await supabase.from('memories').delete().eq('id', memory.id)
+    await supabase.storage.from('Memories').remove([path])
+    await supabase.from('Memories').delete().eq('id', memory.id)
     setLightbox(null)
     setMemories(prev => prev.filter(m => m.id !== memory.id))
   }
