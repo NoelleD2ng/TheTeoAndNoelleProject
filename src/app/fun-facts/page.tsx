@@ -6,12 +6,10 @@ import { useLocalStorage } from '@/hooks/useLocalStorage'
 type Fact = { id: string; text: string; about: 'teo' | 'noelle' | 'us' }
 
 const sections = [
-  { key: 'teo' as const,    title: 'Teo',          emoji: '🐻' },
-  { key: 'noelle' as const, title: 'Noelle',        emoji: '🌸' },
-  { key: 'us' as const,     title: 'Us Together',   emoji: '💕' },
+  { key: 'teo' as const,    title: 'Teo',         emoji: '🐻' },
+  { key: 'noelle' as const, title: 'Noelle',       emoji: '🌸' },
+  { key: 'us' as const,     title: 'Us Together',  emoji: '💕' },
 ]
-
-const card = { background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)' }
 
 function FactSection({ title, emoji, about, facts, onAdd, onDelete }: {
   title: string; emoji: string; about: 'teo' | 'noelle' | 'us'
@@ -30,25 +28,24 @@ function FactSection({ title, emoji, about, facts, onAdd, onDelete }: {
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.15] p-5 flex flex-col gap-3" style={card}>
-      <h2 className="text-sm font-medium text-white tracking-wide">{emoji} {title}</h2>
+    <div className="rounded-2xl border border-[#E8DDD4] bg-white p-5 flex flex-col gap-3" style={{ boxShadow: '0 2px 16px rgba(44,26,14,0.06)' }}>
+      <h2 className="text-sm font-medium text-[#2C1A0E] tracking-wide">{emoji} {title}</h2>
       <form onSubmit={handleAdd} className="flex gap-2">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="add a fun fact..."
-          className="flex-1 px-3 py-2 rounded-xl text-sm text-white placeholder:text-white/65 focus:outline-none"
-          style={{ background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.18)' }}
+          className="flex-1 px-3 py-2 rounded-xl text-sm text-[#2C1A0E] placeholder:text-[#AE9B8E] focus:outline-none bg-[#F5EFE8] border border-[#E8DDD4] focus:border-[#C4784A]/40 transition-colors"
         />
-        <button type="submit" className="px-3 py-2 rounded-xl text-sm font-medium" style={{ background: '#c8a97e', color: '#080d1a' }}>+</button>
+        <button type="submit" className="px-3 py-2 rounded-xl text-sm font-medium bg-[#C4784A] text-white hover:bg-[#B36840] transition-colors">+</button>
       </form>
       <div className="flex flex-col gap-2">
-        {filtered.length === 0 && <p className="text-white/60 text-xs text-center py-3">no facts yet</p>}
+        {filtered.length === 0 && <p className="text-[#AE9B8E] text-xs text-center py-3">no facts yet</p>}
         {filtered.map(fact => (
           <div key={fact.id} className="flex items-start gap-2 p-2 rounded-lg group">
-            <span className="text-[#c8a97e]/40 text-xs mt-1 shrink-0">✦</span>
-            <p className="flex-1 text-sm text-white leading-relaxed">{fact.text}</p>
-            <button onClick={() => onDelete(fact.id)} className="opacity-0 group-hover:opacity-100 text-white/60 hover:text-white/90 text-xs transition-all shrink-0 mt-0.5">✕</button>
+            <span className="text-[#C4784A]/40 text-xs mt-1 shrink-0">✦</span>
+            <p className="flex-1 text-sm text-[#2C1A0E] leading-relaxed">{fact.text}</p>
+            <button onClick={() => onDelete(fact.id)} className="opacity-0 group-hover:opacity-100 text-[#AE9B8E] hover:text-[#C4784A] text-xs transition-all shrink-0 mt-0.5">✕</button>
           </div>
         ))}
       </div>
@@ -71,9 +68,9 @@ export default function FunFactsPage() {
   return (
     <div className="pt-20 p-6 md:p-10">
       <div className="mb-8">
-        <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">about us</p>
-        <h1 className="text-3xl font-bold text-white" >Fun Facts</h1>
-        <p className="text-white/75 mt-1 text-sm">little things that make us, us</p>
+        <p className="text-[10px] tracking-[0.3em] uppercase text-[#C4784A]/70 mb-1">about us</p>
+        <h1 className="text-3xl font-semibold text-[#2C1A0E]">Fun Facts</h1>
+        <p className="text-[#7A6155] mt-1 text-sm">little things that make us, us</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sections.map(s => (

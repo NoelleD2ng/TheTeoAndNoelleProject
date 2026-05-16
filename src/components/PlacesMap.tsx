@@ -39,9 +39,9 @@ function makeIcon(status: 'want-to-go' | 'visited', selected: boolean) {
   })
 }
 
-const glass = { background: 'rgba(8,13,26,0.92)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)' }
-const inputSt = { background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.18)' }
-const inputCls = 'w-full px-3 py-2.5 rounded-xl text-sm text-white placeholder:text-white/50 focus:outline-none'
+const glass = { background: 'rgba(250,248,245,0.97)', backdropFilter: 'blur(16px)', border: '1px solid #E8DDD4', boxShadow: '0 4px 24px rgba(44,26,14,0.12)' }
+const inputSt = { background: '#F5EFE8', border: '1px solid #E8DDD4' }
+const inputCls = 'w-full px-3 py-2.5 rounded-xl text-sm text-[#2C1A0E] placeholder:text-[#AE9B8E] focus:outline-none'
 
 type AddState = { lat: number; lng: number } | null
 
@@ -63,9 +63,9 @@ function StatusToggle({ value, onChange }: { value: 'want-to-go' | 'visited'; on
     <div className="flex gap-2">
       {(['want-to-go', 'visited'] as const).map(s => (
         <button key={s} type="button" onClick={() => onChange(s)} className="flex-1 py-2 rounded-xl text-sm font-medium transition-all" style={{
-          background: value === s ? (s === 'visited' ? '#4ade80' : '#c8a97e') : 'rgba(255,255,255,0.07)',
-          color: value === s ? '#080d1a' : 'rgba(255,255,255,0.55)',
-          border: '1px solid rgba(255,255,255,0.15)',
+          background: value === s ? (s === 'visited' ? '#4ade80' : '#C4784A') : '#F5EFE8',
+          color: value === s ? '#fff' : '#7A6155',
+          border: '1px solid #E8DDD4',
         }}>
           {s === 'want-to-go' ? '♥ Want to go' : '✓ Been there'}
         </button>
@@ -98,7 +98,7 @@ export default function PlacesMap({ places, selectedId, flyTarget, onAdd, onSele
     <div style={{ height: '100%', width: '100%', position: 'relative' }}>
       <MapContainer center={[20, 0]} zoom={2} style={{ height: '100%', width: '100%' }} zoomControl={false}>
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
         />
         <MapEvents onMapClick={handleMapClick} />

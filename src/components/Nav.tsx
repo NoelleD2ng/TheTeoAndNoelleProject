@@ -40,18 +40,17 @@ export default function Nav() {
 
   return (
     <>
-      {/* Fixed top navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-6 md:px-10 backdrop-blur-xl border-b transition-all duration-500 ${
+      <nav className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-6 md:px-10 transition-all duration-500 ${
         scrolled
-          ? 'bg-[#0F172A]/90 border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.3)]'
-          : 'bg-[#0F172A]/40 border-white/[0.04]'
+          ? 'bg-[#FAF8F5]/95 border-b border-[#E8DDD4] shadow-[0_2px_16px_rgba(44,26,14,0.06)] backdrop-blur-md'
+          : 'bg-[#FAF8F5]/70 border-b border-[#E8DDD4]/60 backdrop-blur-sm'
       }`}>
         {/* Logo */}
-        <Link href="/" className="font-serif text-sm tracking-[0.2em] text-white/60 hover:text-white/90 transition-colors shrink-0">
+        <Link href="/" className="font-serif text-sm tracking-[0.18em] text-[#2C1A0E]/70 hover:text-[#2C1A0E] transition-colors shrink-0" style={{ fontFamily: 'var(--font-serif)' }}>
           T & N
         </Link>
 
-        {/* Desktop nav links — centered */}
+        {/* Desktop nav — centered */}
         <div className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href
@@ -60,7 +59,7 @@ export default function Nav() {
                 key={href}
                 href={href}
                 className={`flex items-center gap-1.5 text-[11px] tracking-[0.08em] uppercase transition-colors ${
-                  active ? 'text-[#c8a97e]' : 'text-white/40 hover:text-white/75'
+                  active ? 'text-[#C4784A]' : 'text-[#7A6155]/70 hover:text-[#2C1A0E]'
                 }`}
               >
                 <Icon size={12} strokeWidth={active ? 2.5 : 1.75} />
@@ -71,18 +70,15 @@ export default function Nav() {
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
-          {/* Sign out — desktop */}
           <button
             onClick={handleSignOut}
-            className="hidden lg:flex items-center gap-1.5 text-[11px] tracking-wide text-white/25 hover:text-white/55 transition-colors"
+            className="hidden lg:flex items-center gap-1.5 text-[11px] tracking-wide text-[#AE9B8E] hover:text-[#7A6155] transition-colors"
           >
             <LogOut size={12} />
           </button>
-
-          {/* Hamburger — mobile */}
           <button
             onClick={() => setOpen(o => !o)}
-            className="lg:hidden text-white/50 hover:text-white/80 transition-colors"
+            className="lg:hidden text-[#7A6155] hover:text-[#2C1A0E] transition-colors"
             aria-label="Toggle menu"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
@@ -93,10 +89,7 @@ export default function Nav() {
       {/* Mobile menu */}
       {open && (
         <div className="fixed inset-0 z-40 flex flex-col pt-14">
-          <div
-            className="absolute inset-0 bg-[#080d1a]/95 backdrop-blur-xl"
-            onClick={() => setOpen(false)}
-          />
+          <div className="absolute inset-0 bg-[#FAF8F5]/97 backdrop-blur-xl" onClick={() => setOpen(false)} />
           <div className="relative flex flex-col gap-1 px-6 py-8">
             {navItems.map(({ href, label, icon: Icon }) => {
               const active = pathname === href
@@ -107,8 +100,8 @@ export default function Nav() {
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm tracking-wide transition-colors ${
                     active
-                      ? 'bg-white/[0.06] text-[#c8a97e]'
-                      : 'text-white/50 hover:text-white/80 hover:bg-white/[0.03]'
+                      ? 'bg-[#FDF0E8] text-[#C4784A]'
+                      : 'text-[#7A6155] hover:text-[#2C1A0E] hover:bg-[#F5EFE8]'
                   }`}
                 >
                   <Icon size={15} />
@@ -118,7 +111,7 @@ export default function Nav() {
             })}
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/25 hover:text-white/50 transition-colors mt-4"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-[#AE9B8E] hover:text-[#7A6155] transition-colors mt-4"
             >
               <LogOut size={15} />
               Sign out
