@@ -38,7 +38,7 @@ export default function OurStoryPage() {
       {/* ── Content card ─────────────────────────────────────────────────── */}
       <section className="relative -mt-24 z-10 flex justify-center px-6 pb-24">
         <div
-          className="w-full max-w-2xl rounded-3xl border border-white/[0.08] p-10 md:p-14 text-center"
+          className="w-full max-w-2xl rounded-3xl border border-white/[0.15] p-10 md:p-14 text-center"
           style={{
             background: 'rgba(10, 18, 40, 0.75)',
             backdropFilter: 'blur(24px)',
@@ -46,7 +46,7 @@ export default function OurStoryPage() {
         >
           {/* Edit this section to tell your story */}
           <p
-            className="text-white/85 text-lg md:text-xl leading-relaxed italic font-medium"
+            className="text-white text-lg md:text-xl leading-relaxed italic font-medium"
             
           >
             &ldquo;Since the day we met, everything has felt a little more colorful.
@@ -62,7 +62,7 @@ export default function OurStoryPage() {
               </h2>
               <p className="text-white/70 text-sm leading-relaxed">
                 [Tell your story here — edit this in{' '}
-                <code className="text-white/55 text-xs">src/app/page.tsx</code>]
+                <code className="text-white/70 text-xs">src/app/page.tsx</code>]
               </p>
             </section>
 
@@ -80,7 +80,7 @@ export default function OurStoryPage() {
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4 items-start">
                     <span className="text-[#c8a97e]/50 text-xs shrink-0 pt-0.5 w-28">{item.date}</span>
-                    <span className="text-white/65 text-sm">{item.event}</span>
+                    <span className="text-white/80 text-sm">{item.event}</span>
                   </div>
                 ))}
               </div>

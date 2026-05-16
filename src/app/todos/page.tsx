@@ -30,20 +30,20 @@ function TaskList({
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] p-5 flex flex-col gap-3" style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)' }}>
-      <h2 className="text-sm font-medium text-white/95 tracking-wide">{emoji} {title}</h2>
+    <div className="rounded-2xl border border-white/[0.15] p-5 flex flex-col gap-3" style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)' }}>
+      <h2 className="text-sm font-medium text-white tracking-wide">{emoji} {title}</h2>
       <form onSubmit={handleAdd} className="flex gap-2">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           placeholder="add a task..."
-          className="flex-1 px-3 py-2 rounded-xl text-sm text-white placeholder:text-white/45 focus:outline-none transition-all"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+          className="flex-1 px-3 py-2 rounded-xl text-sm text-white placeholder:text-white/65 focus:outline-none transition-all"
+          style={{ background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.18)' }}
         />
         <button type="submit" className="px-3 py-2 rounded-xl text-sm font-medium transition-colors" style={{ background: '#c8a97e', color: '#080d1a' }}>+</button>
       </form>
       <div className="flex flex-col gap-1">
-        {filtered.length === 0 && <p className="text-white/40 text-xs text-center py-4">no tasks yet</p>}
+        {filtered.length === 0 && <p className="text-white/60 text-xs text-center py-4">no tasks yet</p>}
         {filtered.map(task => (
           <div key={task.id} className={`flex items-center gap-2.5 p-2 rounded-lg group ${task.done ? 'opacity-40' : ''}`}>
             <button onClick={() => onToggle(task.id)} className="shrink-0">
@@ -51,8 +51,8 @@ function TaskList({
                 {task.done && <span className="text-[#080d1a] text-[9px] leading-none font-bold">✓</span>}
               </div>
             </button>
-            <span className={`flex-1 text-sm ${task.done ? 'line-through text-white/55' : 'text-white/90'}`}>{task.text}</span>
-            <button onClick={() => onDelete(task.id)} className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-white/75 text-xs transition-all">✕</button>
+            <span className={`flex-1 text-sm ${task.done ? 'line-through text-white/70' : 'text-white'}`}>{task.text}</span>
+            <button onClick={() => onDelete(task.id)} className="opacity-0 group-hover:opacity-100 text-white/60 hover:text-white/90 text-xs transition-all">✕</button>
           </div>
         ))}
       </div>
@@ -80,7 +80,7 @@ export default function TodosPage() {
       <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] uppercase text-[#c8a97e]/60 mb-1">shared</p>
         <h1 className="text-3xl font-bold text-white" >To-Do Lists</h1>
-        <p className="text-white/60 mt-1 text-sm">things we want to get done</p>
+        <p className="text-white/75 mt-1 text-sm">things we want to get done</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <TaskList title="Teo's Tasks" emoji="🐻" owner="teo" tasks={tasks} onAdd={addTask} onToggle={toggleTask} onDelete={deleteTask} />
