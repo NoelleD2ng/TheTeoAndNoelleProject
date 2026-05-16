@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Heart, CheckSquare, Calendar, MapPin, Star,
   Code2, Camera, Sparkles, Coffee, X, Menu, LogOut,
@@ -24,6 +24,13 @@ export default function Nav() {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   async function handleSignOut() {
     await fetch('/api/logout', { method: 'POST' })
@@ -34,7 +41,11 @@ export default function Nav() {
   return (
     <>
       {/* Fixed top navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-6 md:px-10 backdrop-blur-xl bg-[#080d1a]/75 border-b border-white/[0.06]">
+      <nav className={`fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-6 md:px-10 backdrop-blur-xl border-b transition-all duration-500 ${
+        scrolled
+          ? 'bg-[#0F172A]/90 border-white/[0.08] shadow-[0_4px_24px_rgba(0,0,0,0.3)]'
+          : 'bg-[#0F172A]/40 border-white/[0.04]'
+      }`}>
         {/* Logo */}
         <Link href="/" className="font-serif text-sm tracking-[0.2em] text-white/60 hover:text-white/90 transition-colors shrink-0">
           T & N

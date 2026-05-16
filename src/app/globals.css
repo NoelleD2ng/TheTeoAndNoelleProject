@@ -6,22 +6,92 @@
 
 body {
   font-family: var(--font-sans), Arial, sans-serif;
-  background-color: #080d1a;
+  background-color: #0F172A;
   color: #f0ece4;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(200, 169, 126, 0.25);
+  background: rgba(214, 186, 138, 0.2);
 }
 
 ::-webkit-scrollbar {
   width: 3px;
 }
 ::-webkit-scrollbar-track {
-  background: #080d1a;
+  background: #0F172A;
 }
 ::-webkit-scrollbar-thumb {
   background: #1e2d47;
   border-radius: 2px;
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  33%       { transform: translateY(-10px) translateX(6px); }
+  66%       { transform: translateY(6px) translateX(-4px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50%       { opacity: 0.28; transform: scale(1.08); }
+}
+
+@keyframes glow-pulse-slow {
+  0%, 100% { opacity: 0.08; }
+  50%       { opacity: 0.2; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-float {
+  animation: float 7s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 12s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 9s ease-in-out infinite;
+}
+
+.animate-glow-pulse-slow {
+  animation: glow-pulse-slow 14s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 1s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 1s ease-out 0.2s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fade-up 1s ease-out 0.45s both;
+}
+
+.animate-fade-in {
+  animation: fade-in 1.2s ease-out both;
 }
