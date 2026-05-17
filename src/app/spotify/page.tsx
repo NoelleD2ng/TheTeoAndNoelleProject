@@ -222,7 +222,7 @@ function ArtistRow({ artist, index }: { artist: SpotifyArtist; index: number }) 
       )}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-[#2C1A0E] truncate">{artist.name}</p>
-        {artist.genres[0] && (
+        {artist.genres?.[0] && (
           <p className="text-xs text-[#7A6155] capitalize truncate">{artist.genres[0]}</p>
         )}
       </div>
