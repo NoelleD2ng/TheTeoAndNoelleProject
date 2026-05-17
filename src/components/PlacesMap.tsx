@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Polyline, useMapEvents, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { PlaceMetadata } from '@/lib/supabase'
@@ -78,8 +78,10 @@ type PinsLayerProps = {
 
 function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, setAddState }: PinsLayerProps) {
   const map = useMap()
-  const cbRef = useRef({ onSelectPlace, setAddState })
-  cbRef.current = { onSelectPlace, setAddState }
+  const latestRef = useRef({ onSelectPlace, setAddState, places })
+  latestRef.current = { onSelectPlace, setAddState, places }
+  const selectedRef = useRef(selectedId)
+  selectedRef.current = selectedId
 
   const markersRef = useRef(new Map<string, L.Marker>())
   const prevSelectedRef = useRef<string | null>(null)
@@ -97,7 +99,7 @@ function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, se
     // Add new places
     for (const place of places) {
       if (existing.has(place.id)) continue
-      const isSelected = place.id === selectedId
+      const isSelected = place.id === selectedRef.current
       const memCount = place.linked_memory_ids?.length ?? 0
       const m = L.marker([place.lat, place.lng], {
         icon: makeIcon(place.status, isSelected, memCount),
@@ -111,13 +113,9 @@ function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, se
         const handle = (e: MouseEvent) => {
           e.stopPropagation()
           markerJustClickedRef.current = true
-          const { onSelectPlace, setAddState } = cbRef.current
-          // Always look up the freshest place object
-          const cur = markersRef.current.has(pid)
-            ? places.find(x => x.id === pid) ?? place
-            : place
+          const { onSelectPlace, setAddState, places: cur } = latestRef.current
           setAddState(null)
-          onSelectPlace(cur)
+          onSelectPlace(cur.find(x => x.id === pid) ?? place)
         }
         iconEl.addEventListener('click', handle)
         iconEl.addEventListener('contextmenu', (e: MouseEvent) => { e.preventDefault(); handle(e) })
@@ -125,7 +123,7 @@ function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, se
 
       existing.set(place.id, m)
     }
-  }, [map, places, selectedId, markerJustClickedRef])
+  }, [map, places, markerJustClickedRef])
 
   // Update icons when selection changes without recreating markers
   useEffect(() => {
@@ -136,12 +134,14 @@ function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, se
     if (prev !== null) {
       const p = places.find(x => x.id === prev)
       const m = existing.get(prev)
-      if (p && m) m.setIcon(makeIcon(p.status, false, p.linked_memory_ids?.length ?? 0))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (p && m && (m as any)._map) m.setIcon(makeIcon(p.status, false, p.linked_memory_ids?.length ?? 0))
     }
     if (selectedId !== null) {
       const p = places.find(x => x.id === selectedId)
       const m = existing.get(selectedId)
-      if (p && m) m.setIcon(makeIcon(p.status, true, p.linked_memory_ids?.length ?? 0))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (p && m && (m as any)._map) m.setIcon(makeIcon(p.status, true, p.linked_memory_ids?.length ?? 0))
     }
   }, [selectedId, places])
 
@@ -213,10 +213,6 @@ export default function PlacesMap({ places, selectedId, flyTarget, onAdd, onSele
   const [newMeta, setNewMeta] = useState<PlaceMetadata>({})
   const markerJustClicked = useRef(false)
 
-  const visitedPath = places
-    .filter(p => p.status === 'visited')
-    .map(p => [p.lat, p.lng] as [number, number])
-
   function handleMapClick(lat: number, lng: number) {
     if (markerJustClicked.current) { markerJustClicked.current = false; return }
     if (addState) { setAddState(null); return }
@@ -243,13 +239,6 @@ export default function PlacesMap({ places, selectedId, flyTarget, onAdd, onSele
         />
         <MapEvents onMapClick={handleMapClick} />
         <FlyToHandler target={flyTarget} />
-
-        {visitedPath.length >= 2 && (
-          <Polyline
-            positions={visitedPath}
-            pathOptions={{ color: '#C4784A', weight: 2.5, opacity: 0.38, dashArray: '6 14' }}
-          />
-        )}
 
         <PinsLayer
           places={places}
