@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     })
     if (!addRes.ok) {
       const body = await addRes.text()
-      trackError = `Add tracks ${addRes.status}: ${body}`
+      trackError = `Add tracks ${addRes.status}: ${body} | playlist=${playlist.id} | uris=${JSON.stringify(trackUris)}`
     }
   }
 
