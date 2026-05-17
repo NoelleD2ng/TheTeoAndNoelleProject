@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Polyline, useMapEvents, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { PlaceMetadata } from '@/lib/supabase'
@@ -68,62 +68,90 @@ function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => v
   return null
 }
 
-type PlaceMarkerProps = {
-  place: MapPlace
-  isSelected: boolean
+type PinsLayerProps = {
+  places: MapPlace[]
+  selectedId: string | null
   markerJustClickedRef: React.MutableRefObject<boolean>
   onSelectPlace: (p: MapPlace) => void
   setAddState: (s: { lat: number; lng: number } | null) => void
 }
 
-function PlaceMarker({ place, isSelected, markerJustClickedRef, onSelectPlace, setAddState }: PlaceMarkerProps) {
-  const markerRef = useRef<L.Marker | null>(null)
-  const latestRef = useRef({ place, onSelectPlace, setAddState })
-  latestRef.current = { place, onSelectPlace, setAddState }
+function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, setAddState }: PinsLayerProps) {
+  const map = useMap()
+  const cbRef = useRef({ onSelectPlace, setAddState })
+  cbRef.current = { onSelectPlace, setAddState }
 
-  // Re-runs whenever the icon changes (selection/status/memCount) so we always bind
-  // to the current _icon DOM element, bypassing Leaflet's event routing entirely.
-  const memCount = place.linked_memory_ids?.length ?? 0
+  const markersRef = useRef(new Map<string, L.Marker>())
+  const prevSelectedRef = useRef<string | null>(null)
+
+  // Create / remove markers when the places list changes
   useEffect(() => {
-    const marker = markerRef.current
-    if (!marker) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const icon = (marker as any)._icon as HTMLElement | undefined
-    if (!icon) return
+    const existing = markersRef.current
+    const incomingIds = new Set(places.map(p => p.id))
 
-    function onClick(e: MouseEvent) {
-      e.stopPropagation()
-      markerJustClickedRef.current = true
-      const { place, onSelectPlace, setAddState } = latestRef.current
-      setAddState(null)
-      onSelectPlace(place)
+    // Remove deleted places
+    for (const [id, m] of existing) {
+      if (!incomingIds.has(id)) { m.remove(); existing.delete(id) }
     }
 
-    function onContextMenu(e: MouseEvent) {
-      e.preventDefault()
-      e.stopPropagation()
-      markerJustClickedRef.current = true
-      const { place, onSelectPlace, setAddState } = latestRef.current
-      setAddState(null)
-      onSelectPlace(place)
-    }
+    // Add new places
+    for (const place of places) {
+      if (existing.has(place.id)) continue
+      const isSelected = place.id === selectedId
+      const memCount = place.linked_memory_ids?.length ?? 0
+      const m = L.marker([place.lat, place.lng], {
+        icon: makeIcon(place.status, isSelected, memCount),
+      }).addTo(map)
 
-    icon.addEventListener('click', onClick)
-    icon.addEventListener('contextmenu', onContextMenu)
-    return () => {
-      icon.removeEventListener('click', onClick)
-      icon.removeEventListener('contextmenu', onContextMenu)
-    }
-  // isSelected/place.status/memCount trigger icon change → new _icon element → re-bind
-  }, [isSelected, place.status, memCount, markerJustClickedRef])
+      // addTo(map) creates _icon synchronously — attach DOM handler immediately
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const iconEl = (m as any)._icon as HTMLElement | undefined
+      if (iconEl) {
+        const pid = place.id
+        const handle = (e: MouseEvent) => {
+          e.stopPropagation()
+          markerJustClickedRef.current = true
+          const { onSelectPlace, setAddState } = cbRef.current
+          // Always look up the freshest place object
+          const cur = markersRef.current.has(pid)
+            ? places.find(x => x.id === pid) ?? place
+            : place
+          setAddState(null)
+          onSelectPlace(cur)
+        }
+        iconEl.addEventListener('click', handle)
+        iconEl.addEventListener('contextmenu', (e: MouseEvent) => { e.preventDefault(); handle(e) })
+      }
 
-  return (
-    <Marker
-      ref={markerRef}
-      position={[place.lat, place.lng]}
-      icon={makeIcon(place.status, isSelected, memCount)}
-    />
-  )
+      existing.set(place.id, m)
+    }
+  }, [map, places, selectedId, markerJustClickedRef])
+
+  // Update icons when selection changes without recreating markers
+  useEffect(() => {
+    const prev = prevSelectedRef.current
+    prevSelectedRef.current = selectedId
+    const existing = markersRef.current
+
+    if (prev !== null) {
+      const p = places.find(x => x.id === prev)
+      const m = existing.get(prev)
+      if (p && m) m.setIcon(makeIcon(p.status, false, p.linked_memory_ids?.length ?? 0))
+    }
+    if (selectedId !== null) {
+      const p = places.find(x => x.id === selectedId)
+      const m = existing.get(selectedId)
+      if (p && m) m.setIcon(makeIcon(p.status, true, p.linked_memory_ids?.length ?? 0))
+    }
+  }, [selectedId, places])
+
+  // Cleanup all markers on unmount
+  useEffect(() => () => {
+    markersRef.current.forEach(m => m.remove())
+    markersRef.current.clear()
+  }, [])
+
+  return null
 }
 
 function FlyToHandler({ target }: { target: Props['flyTarget'] }) {
@@ -223,16 +251,13 @@ export default function PlacesMap({ places, selectedId, flyTarget, onAdd, onSele
           />
         )}
 
-        {places.map(place => (
-          <PlaceMarker
-            key={place.id}
-            place={place}
-            isSelected={place.id === selectedId}
-            markerJustClickedRef={markerJustClicked}
-            onSelectPlace={onSelectPlace}
-            setAddState={setAddState}
-          />
-        ))}
+        <PinsLayer
+          places={places}
+          selectedId={selectedId}
+          markerJustClickedRef={markerJustClicked}
+          onSelectPlace={onSelectPlace}
+          setAddState={setAddState}
+        />
       </MapContainer>
 
       {!addState && !selectedId && (
