@@ -75,12 +75,12 @@ export default function PlacesPage() {
   })
 
   const FLOAT_POSITIONS = [
-    { dx: -145, dy: -105, rot: -12, delay: 0 },
-    { dx: 115,  dy: -118, rot:   8, delay: 55 },
-    { dx: -178, dy:   18, rot:  -5, delay: 95 },
-    { dx: 162,  dy:   22, rot:  11, delay: 40 },
-    { dx: -118, dy:  145, rot:  -8, delay: 75 },
-    { dx: 105,  dy:  148, rot:   6, delay: 115 },
+    { dx: -190, dy: -135, rot: -12, delay: 0,   floatAnim: 'photo-float-a' },
+    { dx: 155,  dy: -150, rot:   8, delay: 55,  floatAnim: 'photo-float-b' },
+    { dx: -220, dy:   20, rot:  -5, delay: 95,  floatAnim: 'photo-float-c' },
+    { dx: 205,  dy:   25, rot:  11, delay: 40,  floatAnim: 'photo-float-a' },
+    { dx: -155, dy:  175, rot:  -8, delay: 75,  floatAnim: 'photo-float-b' },
+    { dx: 140,  dy:  180, rot:   6, delay: 115, floatAnim: 'photo-float-c' },
   ]
 
   useEffect(() => {
@@ -565,16 +565,16 @@ export default function PlacesPage() {
                 }}
                 onClick={openMemoryCard}
               >
-                <div style={{ animation: photosPopped ? `photo-bob 2.8s ease-in-out ${pos.delay + 650}ms infinite` : 'none' }}>
+                <div style={{ animation: photosPopped ? `${pos.floatAnim} 3.2s ease-in-out ${pos.delay + 650}ms infinite` : 'none' }}>
                   <div
                     className="cursor-pointer transition-transform hover:scale-110 active:scale-95"
                     style={{
-                      width: 78,
-                      height: 78,
-                      borderRadius: 12,
+                      width: 130,
+                      height: 130,
+                      borderRadius: 16,
                       overflow: 'hidden',
-                      border: '3.5px solid rgba(255,255,255,0.92)',
-                      boxShadow: '0 6px 22px rgba(0,0,0,0.38), 0 2px 8px rgba(44,26,14,0.22)',
+                      border: '4px solid rgba(255,255,255,0.95)',
+                      boxShadow: '0 10px 32px rgba(0,0,0,0.42), 0 3px 12px rgba(44,26,14,0.28)',
                     }}
                   >
                     {m.image_url.toLowerCase().endsWith('.pdf') ? (
@@ -784,9 +784,25 @@ export default function PlacesPage() {
           from { opacity: 0; transform: scale(0.86) translateY(24px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes photo-bob {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-7px); }
+        @keyframes photo-float-a {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          25%  { transform: translate(9px, -13px) rotate(1.5deg); }
+          50%  { transform: translate(2px, -18px) rotate(0deg); }
+          75%  { transform: translate(-7px, -10px) rotate(-1deg); }
+          100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        @keyframes photo-float-b {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          30%  { transform: translate(-11px, -9px) rotate(-1.5deg); }
+          60%  { transform: translate(7px, -16px) rotate(1deg); }
+          100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        @keyframes photo-float-c {
+          0%   { transform: translate(0px, 0px) rotate(0deg); }
+          20%  { transform: translate(6px, -15px) rotate(1deg); }
+          55%  { transform: translate(-9px, -8px) rotate(-1.5deg); }
+          80%  { transform: translate(4px, -20px) rotate(0.5deg); }
+          100% { transform: translate(0px, 0px) rotate(0deg); }
         }
       `}</style>
     </div>
