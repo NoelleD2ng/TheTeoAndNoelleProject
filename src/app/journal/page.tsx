@@ -359,15 +359,82 @@ export default function JournalPage() {
               </div>
             )}
 
-            {/* ── Empty state ── */}
+            {/* ── Welcome letter ── */}
             {!composing && !selected && (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center px-8">
-                  <div className="text-[5rem] mb-6 leading-none" style={{ opacity: 0.1 }}>✦</div>
-                  <p className="text-base text-[#7A6155]/30 mb-1" style={serif}>
-                    Your thoughts. Your love. Your story.
+              <div className="max-w-xl mx-auto px-8 py-14 entry-in">
+
+                <p className="text-[9px] tracking-[0.55em] uppercase text-[#C4784A]/40 mb-8">for teo, always</p>
+
+                <h2 className="text-[1.9rem] font-bold text-[#2C1A0E] leading-snug mb-10" style={serif}>
+                  When you need me,<br />read this.
+                </h2>
+
+                <div className="flex flex-col gap-6 text-[0.93rem] text-[#3A2214]/65 leading-[1.95]" style={serif}>
+                  <p>
+                    Before you read anything else in this journal, I want you to know why I'm making it.
+                    I know there have been moments in our relationship where I've hurt your trust, made you overthink,
+                    or made you feel smaller than you deserve to feel. I can't change the past, but I can choose how
+                    I love you moving forward — intentionally, honestly, and consistently.
                   </p>
-                  <p className="text-xs text-[#7A6155]/20">Select an entry or write something new.</p>
+
+                  <p>That's why I'm making this for you.</p>
+
+                  <p>
+                    This isn't going to be a one-time thing that gets forgotten after a week. I want this to become
+                    a routine for me. Something I continue adding to every day or every other day so there's something
+                    new for you to come back to whenever you need it.
+                  </p>
+
+                  <p className="text-[#C4784A]/60 italic">I want these notes to grow with us.</p>
+
+                  <div style={{ borderTop: '1px solid #E8DDD4', paddingTop: 24, marginTop: 4 }}>
+                    <p>
+                      I'm going to fill these notes with real moments, real memories, and real details from our
+                      everyday life together — so it never feels generic or distant. I want you to be able to open
+                      to any page and remember specific nights, conversations, jokes, dates, little moments, or
+                      feelings we shared around the time I wrote it.
+                    </p>
+                  </div>
+
+                  <p>
+                    Maybe one page will be about how happy I felt after one of our late-night talks. Maybe another
+                    will be about the way you held my hand in the car, or a small moment where you're holding my hand
+                    and kiss it. Maybe another will be about a random moment that made me look at you and think,
+                    <span className="text-[#2C1A0E]/80 italic"> "I love him so much, he's so silly and makes me genuinely happy."</span>
+                  </p>
+
+                  <div
+                    className="px-6 py-6 rounded-2xl my-2"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(196,120,74,0.07) 0%, rgba(232,168,124,0.06) 100%)',
+                      border: '1px solid rgba(196,120,74,0.15)',
+                    }}
+                  >
+                    <p className="text-[#2C1A0E]/75">
+                      And most importantly, I want this journal to remind you of something I never want you to forget:
+                    </p>
+                    <p className="text-[1.05rem] font-semibold text-[#C4784A] mt-3 mb-3">
+                      You are deeply loved by me.
+                    </p>
+                    <p>
+                      Not conditionally. Not temporarily. Not only during easy moments.
+                      You are loved in the quiet days, the difficult days, the healing days,
+                      and all the in-between moments too.
+                    </p>
+                  </div>
+
+                  <p>
+                    So whenever you feel insecure, overwhelmed, doubtful, or distant from me — I want you to come
+                    back here and let these pages remind you how important you are to my heart.
+                  </p>
+
+                  <p className="text-[#C4784A]/55 mt-4">With all my love, Noelle ♥</p>
+                </div>
+
+                <div className="mt-16 flex items-center gap-3">
+                  <div className="flex-1 h-px" style={{ background: '#E8DDD4' }} />
+                  <span className="text-[#C4784A]/20 text-lg">♥</span>
+                  <div className="flex-1 h-px" style={{ background: '#E8DDD4' }} />
                 </div>
               </div>
             )}
