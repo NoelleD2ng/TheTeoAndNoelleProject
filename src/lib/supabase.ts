@@ -34,6 +34,7 @@ export type JournalEntry = {
   title: string | null
   content: string
   mood: string | null
+  images: string[]
   created_at: string
 }
 

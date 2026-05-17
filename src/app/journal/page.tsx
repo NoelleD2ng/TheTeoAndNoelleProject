@@ -38,6 +38,8 @@ export default function JournalPage() {
   const [newMood, setNewMood] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [newImages, setNewImages] = useState<string[]>([])
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -62,6 +64,24 @@ export default function JournalPage() {
     setNewTitle('')
     setNewContent('')
     setNewMood('')
+    setNewImages([])
+    setSaveError(null)
+  }
+
+  async function handlePaste(e: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const imageItem = Array.from(e.clipboardData.items).find(i => i.type.startsWith('image/'))
+    if (!imageItem) return
+    e.preventDefault()
+    const file = imageItem.getAsFile()
+    if (!file) return
+    setUploadingImage(true)
+    const ext = file.type.split('/')[1] ?? 'png'
+    const path = `journal/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { error } = await supabase.storage.from('journal-images').upload(path, file, { contentType: file.type })
+    if (error) { setSaveError('Image upload failed — make sure the journal-images storage bucket exists and is public.'); setUploadingImage(false); return }
+    const { data: urlData } = supabase.storage.from('journal-images').getPublicUrl(path)
+    setNewImages(prev => [...prev, urlData.publicUrl])
+    setUploadingImage(false)
   }
 
   async function save() {
@@ -73,6 +93,7 @@ export default function JournalPage() {
       title: newTitle.trim() || null,
       content: newContent.trim(),
       mood: newMood || null,
+      images: newImages,
     }).select().single()
     if (error) {
       setSaveError('Could not save — make sure the journal_entries table exists in Supabase.')
@@ -299,9 +320,14 @@ export default function JournalPage() {
                     </p>
 
                     {/* read more hint */}
-                    <p className="text-[9px] text-[#C4784A]/40 mt-3 tracking-wider uppercase">
-                      {love ? 'read note →' : 'read entry →'}
-                    </p>
+                    <div className="flex items-center justify-between mt-3">
+                      <p className="text-[9px] text-[#C4784A]/40 tracking-wider uppercase">
+                        {love ? 'read note →' : 'read entry →'}
+                      </p>
+                      {(entry.images?.length ?? 0) > 0 && (
+                        <span className="text-[9px] text-[#7A6155]/30">📷 {entry.images.length}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
@@ -377,6 +403,20 @@ export default function JournalPage() {
               <p className="text-[0.93rem] text-[#3A2214]/70 leading-[1.95] whitespace-pre-wrap" style={serif}>
                 {selected.content}
               </p>
+
+              {selected.images?.length > 0 && (
+                <div className="mt-8 flex flex-col gap-4">
+                  {selected.images.map((url, i) => (
+                    <img
+                      key={i}
+                      src={url}
+                      alt=""
+                      className="w-full rounded-2xl object-cover"
+                      style={{ maxHeight: 420, border: '1px solid #EDE4DA' }}
+                    />
+                  ))}
+                </div>
+              )}
 
               {isLove(selected) && (
                 <p className="text-sm text-[#C4784A]/40 mt-8" style={serif}>With love, Noelle ♥</p>
@@ -454,11 +494,41 @@ export default function JournalPage() {
                 ref={textareaRef}
                 value={newContent}
                 onChange={e => setNewContent(e.target.value)}
+                onPaste={handlePaste}
                 placeholder={newType === 'love-note' ? 'Tell him something wonderful...' : "What's on your mind..."}
                 rows={12}
                 className="w-full bg-transparent border-none outline-none resize-none text-[#3A2214]/75 leading-[1.9] text-[0.93rem] placeholder:text-[#C8B5A8]/40"
                 style={serif}
               />
+
+              {/* Image previews */}
+              {(newImages.length > 0 || uploadingImage) && (
+                <div className="flex gap-3 flex-wrap mt-2">
+                  {newImages.map((url, i) => (
+                    <div key={url} className="relative group">
+                      <img
+                        src={url}
+                        alt=""
+                        className="w-24 h-24 object-cover rounded-xl"
+                        style={{ border: '2px solid #EDE4DA' }}
+                      />
+                      <button
+                        onClick={() => setNewImages(prev => prev.filter((_, j) => j !== i))}
+                        className="absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ background: '#2C1A0E', color: '#fff' }}
+                      >×</button>
+                    </div>
+                  ))}
+                  {uploadingImage && (
+                    <div className="w-24 h-24 rounded-xl flex items-center justify-center" style={{ background: '#F5EFE8', border: '2px dashed #E8DDD4' }}>
+                      <span className="text-xs text-[#C4784A]/50">uploading...</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              {!uploadingImage && (
+                <p className="text-[10px] text-[#7A6155]/25 mt-3 tracking-wide">Paste an image anywhere to attach it</p>
+              )}
             </div>
 
             <div className="px-8 py-5 shrink-0 flex flex-col gap-3" style={{ borderTop: '1px solid #EDE4DA' }}>
