@@ -22,7 +22,7 @@ export type MapPlace = {
 type Props = {
   places: MapPlace[]
   selectedId: string | null
-  flyTarget: { lat: number; lng: number; ts: number; dramatic?: boolean } | null
+  flyTarget: { lat: number; lng: number; ts: number; zoom?: number } | null
   onAdd: (place: Omit<MapPlace, 'id'>) => void
   onSelectPlace: (place: MapPlace | null) => void
 }
@@ -61,20 +61,60 @@ function makeIcon(status: 'want-to-go' | 'visited', selected: boolean, memCount:
 
 
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({ click: e => onMapClick(e.latlng.lat, e.latlng.lng) })
+  const ref = useRef(onMapClick)
+  ref.current = onMapClick
+  const [handlers] = useState(() => ({ click: (e: L.LeafletMouseEvent) => ref.current(e.latlng.lat, e.latlng.lng) }))
+  useMapEvents(handlers)
   return null
+}
+
+type PlaceMarkerProps = {
+  place: MapPlace
+  isSelected: boolean
+  markerJustClickedRef: React.MutableRefObject<boolean>
+  onSelectPlace: (p: MapPlace) => void
+  setAddState: (s: { lat: number; lng: number } | null) => void
+}
+
+function PlaceMarker({ place, isSelected, markerJustClickedRef, onSelectPlace, setAddState }: PlaceMarkerProps) {
+  const latest = useRef({ place, onSelectPlace, setAddState })
+  latest.current = { place, onSelectPlace, setAddState }
+  const [handlers] = useState(() => {
+    const select = (e: L.LeafletMouseEvent) => {
+      markerJustClickedRef.current = true
+      if (e.originalEvent) e.originalEvent.stopPropagation()
+      const { place, onSelectPlace, setAddState } = latest.current
+      setAddState(null)
+      onSelectPlace(place)
+    }
+    return {
+      click: select,
+      contextmenu: (e: L.LeafletMouseEvent) => {
+        if (e.originalEvent) e.originalEvent.preventDefault()
+        select(e)
+      },
+    }
+  })
+  return (
+    <Marker
+      position={[place.lat, place.lng]}
+      icon={makeIcon(place.status, isSelected, place.linked_memory_ids?.length ?? 0)}
+      eventHandlers={handlers}
+    />
+  )
 }
 
 function FlyToHandler({ target }: { target: Props['flyTarget'] }) {
   const map = useMap()
   useEffect(() => {
     if (!target) return
-    const zoom = target.dramatic ? 16 : Math.max(map.getZoom(), 14)
-    const duration = target.dramatic ? 1.8 : 0.7
+    const zoom = target.zoom ?? Math.max(map.getZoom(), 14)
+    const duration = target.zoom ? 1.4 : 0.7
     map.flyTo([target.lat, target.lng], zoom, { duration, easeLinearity: 0.25 })
   }, [target, map])
   return null
 }
+
 
 const glass = { background: 'rgba(250,248,245,.97)', backdropFilter: 'blur(16px)', border: '1px solid #E8DDD4', boxShadow: '0 4px 24px rgba(44,26,14,.12)' }
 const inputSt = { background: '#F5EFE8', border: '1px solid #E8DDD4' }
@@ -161,18 +201,13 @@ export default function PlacesMap({ places, selectedId, flyTarget, onAdd, onSele
         )}
 
         {places.map(place => (
-          <Marker
+          <PlaceMarker
             key={place.id}
-            position={[place.lat, place.lng]}
-            icon={makeIcon(place.status, place.id === selectedId, place.linked_memory_ids?.length ?? 0)}
-            eventHandlers={{
-              click: e => {
-                markerJustClicked.current = true
-                L.DomEvent.stop(e.originalEvent)
-                setAddState(null)
-                onSelectPlace(place)
-              }
-            }}
+            place={place}
+            isSelected={place.id === selectedId}
+            markerJustClickedRef={markerJustClicked}
+            onSelectPlace={onSelectPlace}
+            setAddState={setAddState}
           />
         ))}
       </MapContainer>

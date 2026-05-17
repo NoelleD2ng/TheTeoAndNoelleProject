@@ -8,7 +8,7 @@ import type { MapPlace } from '@/components/PlacesMap'
 const PlacesMap = dynamic(() => import('@/components/PlacesMap'), { ssr: false })
 
 type GeoResult = { place_id: number; display_name: string; lat: string; lon: string }
-type FlyTarget = { lat: number; lng: number; ts: number } | null
+type FlyTarget = { lat: number; lng: number; ts: number; zoom?: number } | null
 type Filter = 'all' | 'want-to-go' | 'visited'
 
 const glass = { background: 'rgba(250,248,245,0.97)', backdropFilter: 'blur(16px)', borderRight: '1px solid #E8DDD4' }
@@ -64,6 +64,11 @@ export default function PlacesPage() {
   const [photosPopped, setPhotosPopped] = useState(false)
   const popTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const [dragOffsets, setDragOffsets] = useState<Record<string, { x: number; y: number }>>({})
+  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const draggingRef = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null)
+  const didDragRef = useRef(false)
+
   const selectedPlace = places.find(p => p.id === selectedId) ?? null
   const wantCount = places.filter(p => p.status === 'want-to-go').length
   const visitedCount = places.filter(p => p.status === 'visited').length
@@ -86,11 +91,42 @@ export default function PlacesPage() {
   useEffect(() => {
     if (popTimer.current) clearTimeout(popTimer.current)
     setPhotosPopped(false)
+    setDragOffsets({})
     if (selectedId) {
       popTimer.current = setTimeout(() => setPhotosPopped(true), 280)
     }
     return () => { if (popTimer.current) clearTimeout(popTimer.current) }
   }, [selectedId])
+
+  function handlePhotoDragStart(e: React.MouseEvent, id: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    const orig = dragOffsets[id] ?? { x: 0, y: 0 }
+    draggingRef.current = { id, startX: e.clientX, startY: e.clientY, origX: orig.x, origY: orig.y }
+    didDragRef.current = false
+    setDraggingId(id)
+
+    function onMove(ev: MouseEvent) {
+      if (!draggingRef.current) return
+      const dx = ev.clientX - draggingRef.current.startX
+      const dy = ev.clientY - draggingRef.current.startY
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didDragRef.current = true
+      setDragOffsets(prev => ({
+        ...prev,
+        [draggingRef.current!.id]: { x: draggingRef.current!.origX + dx, y: draggingRef.current!.origY + dy },
+      }))
+    }
+
+    function onUp() {
+      draggingRef.current = null
+      setDraggingId(null)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
 
   useEffect(() => {
     async function fetchPlaces() {
@@ -241,14 +277,14 @@ export default function PlacesPage() {
     setSelectedId(place.id)
     setEditing(false)
     setShowMemoryCard(false)
-    setFlyTarget({ lat: place.lat, lng: place.lng, ts: Date.now() })
+    setFlyTarget({ lat: place.lat, lng: place.lng, ts: Date.now(), zoom: 17 })
   }
 
   function flyToPlace(place: MapPlace) {
     setSelectedId(place.id)
     setEditing(false)
     setShowMemoryCard(false)
-    setFlyTarget({ lat: place.lat, lng: place.lng, ts: Date.now() })
+    setFlyTarget({ lat: place.lat, lng: place.lng, ts: Date.now(), zoom: 17 })
   }
 
   const linkedMemories = allMemories.filter(m => selectedPlace?.linked_memory_ids?.includes(m.id))
@@ -546,8 +582,18 @@ export default function PlacesPage() {
             onSelectPlace={selectPlace}
           />
 
+          <button
+            onClick={() => setFlyTarget({ lat: 39.5, lng: -98.35, ts: Date.now(), zoom: 4 })}
+            className="absolute bottom-6 right-4 z-[1000] flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:scale-105 active:scale-95"
+            style={{ background: 'rgba(250,248,245,0.95)', border: '1px solid #E8DDD4', color: '#7A6155', boxShadow: '0 2px 12px rgba(44,26,14,0.15)', backdropFilter: 'blur(8px)' }}
+          >
+            🗺 Reset view
+          </button>
+
           {selectedPlace && linkedMemories.length > 0 && linkedMemories.slice(0, 6).map((m, i) => {
             const pos = FLOAT_POSITIONS[i % FLOAT_POSITIONS.length]
+            const offset = dragOffsets[m.id] ?? { x: 0, y: 0 }
+            const isDragging = draggingId === m.id
             return (
               <div
                 key={m.id}
@@ -555,26 +601,31 @@ export default function PlacesPage() {
                 style={{
                   left: '50%',
                   top: '50%',
-                  zIndex: 600,
+                  zIndex: isDragging ? 650 : 600,
                   pointerEvents: photosPopped ? 'auto' : 'none',
                   transform: photosPopped
-                    ? `translate(calc(-50% + ${pos.dx}px), calc(-50% + ${pos.dy}px)) rotate(${pos.rot}deg)`
+                    ? `translate(calc(-50% + ${pos.dx + offset.x}px), calc(-50% + ${pos.dy + offset.y}px)) rotate(${pos.rot}deg)`
                     : `translate(-50%, -50%) scale(0) rotate(0deg)`,
                   opacity: photosPopped ? 1 : 0,
-                  transition: `transform 0.6s cubic-bezier(0.34,1.56,0.64,1) ${photosPopped ? pos.delay : 0}ms, opacity 0.35s ease ${photosPopped ? pos.delay : 0}ms`,
+                  transition: isDragging ? 'none' : `transform 0.6s cubic-bezier(0.34,1.56,0.64,1) ${photosPopped ? pos.delay : 0}ms, opacity 0.35s ease ${photosPopped ? pos.delay : 0}ms`,
+                  cursor: isDragging ? 'grabbing' : 'grab',
                 }}
-                onClick={openMemoryCard}
+                onMouseDown={e => handlePhotoDragStart(e, m.id)}
+                onClick={() => { if (!didDragRef.current) openMemoryCard() }}
               >
-                <div style={{ animation: photosPopped ? `${pos.floatAnim} 3.2s ease-in-out ${pos.delay + 650}ms infinite` : 'none' }}>
+                <div style={{ animation: photosPopped && !isDragging ? `${pos.floatAnim} 3.2s ease-in-out ${pos.delay + 650}ms infinite` : 'none' }}>
                   <div
-                    className="cursor-pointer transition-transform hover:scale-110 active:scale-95"
                     style={{
                       width: 130,
                       height: 130,
                       borderRadius: 16,
                       overflow: 'hidden',
                       border: '4px solid rgba(255,255,255,0.95)',
-                      boxShadow: '0 10px 32px rgba(0,0,0,0.42), 0 3px 12px rgba(44,26,14,0.28)',
+                      boxShadow: isDragging
+                        ? '0 20px 50px rgba(0,0,0,0.55), 0 4px 16px rgba(44,26,14,0.35)'
+                        : '0 10px 32px rgba(0,0,0,0.42), 0 3px 12px rgba(44,26,14,0.28)',
+                      transform: isDragging ? 'scale(1.08)' : 'scale(1)',
+                      transition: isDragging ? 'none' : 'transform 0.2s ease, box-shadow 0.2s ease',
                     }}
                   >
                     {m.image_url.toLowerCase().endsWith('.pdf') ? (
