@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
       const body = await getRes.text()
       trackError = `GET playlist ${getRes.status}: ${body}`
     } else {
-      // Step 3: add tracks
+      // Step 3: add tracks (PUT replaces instead of appending — same effect on a new empty playlist)
       const addRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
-        method: 'POST',
+        method: 'PUT',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ uris: trackUris }),
       })
