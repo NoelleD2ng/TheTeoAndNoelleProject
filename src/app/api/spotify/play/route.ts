@@ -2,20 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { spotifyFetch } from '@/lib/spotify'
 
 export async function PUT(request: NextRequest) {
-  const { user, uris, deviceId } = await request.json() as {
+  const { user, uris, deviceId, contextUri } = await request.json() as {
     user: string
-    uris?: string[]
     deviceId: string
+    uris?: string[]
+    contextUri?: string
   }
 
   if (user !== 'teo' && user !== 'noelle') {
     return NextResponse.json({ error: 'Invalid user' }, { status: 400 })
   }
 
+  const body = contextUri
+    ? { context_uri: contextUri }
+    : uris?.length
+      ? { uris }
+      : {}
+
   try {
     await spotifyFetch(user, `/me/player/play?device_id=${deviceId}`, {
       method: 'PUT',
-      body: JSON.stringify(uris?.length ? { uris } : {}),
+      body: JSON.stringify(body),
     })
     return NextResponse.json({ success: true })
   } catch (e) {

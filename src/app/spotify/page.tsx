@@ -232,7 +232,11 @@ function ArtistRow({ artist, index }: { artist: SpotifyArtist; index: number }) 
 
 // ── PlaylistBuilder ───────────────────────────────────────────────────────
 
-function PlaylistBuilder({ status }: { status: Status }) {
+type CreatedPlaylist = { name: string; url: string; id: string; tracks: SpotifyTrack[] }
+
+function PlaylistBuilder({
+  status, activeListener, deviceId,
+}: { status: Status; activeListener: UserKey | null; deviceId: string | null }) {
   const connected = USERS.filter(u => status[u].connected)
   const [creatorUser, setCreatorUser] = useState<UserKey>(connected[0] ?? 'teo')
   const [name, setName] = useState('')
@@ -241,7 +245,8 @@ function PlaylistBuilder({ status }: { status: Status }) {
   const [searching, setSearching] = useState(false)
   const [queue, setQueue] = useState<SpotifyTrack[]>([])
   const [creating, setCreating] = useState(false)
-  const [createdUrl, setCreatedUrl] = useState<string | null>(null)
+  const [created, setCreated] = useState<CreatedPlaylist | null>(null)
+  const [playingPlaylist, setPlayingPlaylist] = useState(false)
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -262,7 +267,6 @@ function PlaylistBuilder({ status }: { status: Status }) {
   async function handleCreate() {
     if (!name.trim() || queue.length === 0 || creating) return
     setCreating(true)
-    setCreatedUrl(null)
     try {
       const res = await fetch('/api/spotify/create-playlist', {
         method: 'POST',
@@ -274,9 +278,9 @@ function PlaylistBuilder({ status }: { status: Status }) {
           trackUris: queue.map(t => t.uri),
         }),
       })
-      const data = await res.json() as { url?: string }
-      if (data.url) {
-        setCreatedUrl(data.url)
+      const data = await res.json() as { url?: string; id?: string; error?: string }
+      if (data.url && data.id) {
+        setCreated({ name, url: data.url, id: data.id, tracks: [...queue] })
         setQueue([])
         setName('')
         setSearchQ('')
@@ -287,6 +291,21 @@ function PlaylistBuilder({ status }: { status: Status }) {
     }
   }
 
+  async function handlePlayPlaylist() {
+    if (!created || !activeListener || !deviceId) return
+    setPlayingPlaylist(true)
+    await fetch('/api/spotify/play', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user: activeListener,
+        deviceId,
+        contextUri: `spotify:playlist:${created.id}`,
+      }),
+    })
+    setTimeout(() => setPlayingPlaylist(false), 1500)
+  }
+
   if (connected.length === 0) {
     return (
       <p className="text-center text-[#AE9B8E] py-12 text-sm">
@@ -295,6 +314,58 @@ function PlaylistBuilder({ status }: { status: Status }) {
     )
   }
 
+  // ── Show created playlist ──────────────────────────────────────────────
+  if (created) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] tracking-widest uppercase text-[#4ade80]/80 mb-1">Saved to Spotify ✓</p>
+            <p className="text-lg font-semibold text-[#2C1A0E]">{created.name}</p>
+            <p className="text-xs text-[#7A6155]">{created.tracks.length} songs</p>
+          </div>
+          <div className="flex gap-2">
+            {activeListener && deviceId && (
+              <button
+                onClick={handlePlayPlaylist}
+                disabled={playingPlaylist}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-60"
+                style={{ background: COLORS[activeListener] }}
+              >
+                {playingPlaylist ? '▶ Playing…' : '▶ Play Now'}
+              </button>
+            )}
+            <a
+              href={created.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all hover:opacity-90"
+              style={{ background: '#F5EFE8', color: '#7A6155', border: '1px solid #E8DDD4' }}
+            >
+              Open in Spotify
+            </a>
+          </div>
+        </div>
+
+        <div className="max-h-72 overflow-y-auto rounded-xl" style={{ border: '1px solid #E8DDD4' }}>
+          <div className="p-2">
+            {created.tracks.map((t, i) => (
+              <TrackRow key={`${t.id}-${i}`} track={t} index={i} />
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCreated(null)}
+          className="text-sm text-[#AE9B8E] hover:text-[#C4784A] transition-colors text-center"
+        >
+          + Make another playlist
+        </button>
+      </div>
+    )
+  }
+
+  // ── Builder ────────────────────────────────────────────────────────────
   const addedIds = new Set(queue.map(t => t.id))
 
   return (
@@ -325,7 +396,7 @@ function PlaylistBuilder({ status }: { status: Status }) {
       </div>
 
       {/* Queue + create */}
-      <div className="flex flex-col gap-3 p-4 rounded-2xl" style={glass}>
+      <div className="flex flex-col gap-3 p-4 rounded-2xl" style={{ border: '1px solid #E8DDD4' }}>
         <p className="text-[10px] tracking-widest uppercase text-[#C4784A]/60">Your Playlist</p>
         <input
           value={name}
@@ -337,7 +408,7 @@ function PlaylistBuilder({ status }: { status: Status }) {
         {queue.length === 0 ? (
           <p className="text-xs text-[#AE9B8E] text-center py-6">Search and add songs on the left</p>
         ) : (
-          <div className="max-h-52 overflow-y-auto">
+          <div className="max-h-52 overflow-y-auto flex flex-col gap-0.5">
             {queue.map((t, i) => (
               <div key={`${t.id}-${i}`} className="flex items-center gap-2 py-1.5 border-b border-[#E8DDD4]/50 last:border-0">
                 <p className="flex-1 text-sm text-[#2C1A0E] truncate">{t.name}</p>
@@ -345,9 +416,7 @@ function PlaylistBuilder({ status }: { status: Status }) {
                 <button
                   onClick={() => setQueue(q => q.filter((_, j) => j !== i))}
                   className="text-[#AE9B8E] hover:text-[#C4784A] transition-colors text-lg leading-none"
-                >
-                  ×
-                </button>
+                >×</button>
               </div>
             ))}
           </div>
@@ -371,19 +440,9 @@ function PlaylistBuilder({ status }: { status: Status }) {
             className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-40"
             style={{ background: '#C4784A' }}
           >
-            {creating ? 'Creating…' : 'Create ♥'}
+            {creating ? 'Saving…' : 'Create ♥'}
           </button>
         </div>
-        {createdUrl && (
-          <a
-            href={createdUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-center text-sm text-[#C4784A] hover:underline"
-          >
-            ✓ Playlist created — open in Spotify
-          </a>
-        )}
       </div>
     </div>
   )
@@ -685,7 +744,7 @@ export default function SpotifyPage() {
             {/* Tab content */}
             <div className="rounded-2xl p-4" style={glass}>
               {tab === 'playlist' ? (
-                <PlaylistBuilder status={status} />
+                <PlaylistBuilder status={status} activeListener={activeListener} deviceId={deviceId} />
               ) : loadingTab ? (
                 <p className="text-center text-[#AE9B8E] py-12 text-sm animate-pulse">Loading…</p>
               ) : tab === 'top-tracks' ? (
