@@ -280,13 +280,14 @@ function PlaylistBuilder({
           trackUris: queue.map(t => t.uri),
         }),
       })
-      const data = await res.json() as { url?: string; id?: string; error?: string }
+      const data = await res.json() as { url?: string; id?: string; error?: string; trackError?: string }
       if (data.url && data.id) {
         setCreated({ name, url: data.url, id: data.id, tracks: [...queue] })
         setQueue([])
         setName('')
         setSearchQ('')
         setSearchResults([])
+        if (data.trackError) setCreateError(`Playlist created but tracks failed: ${data.trackError}`)
       } else {
         setCreateError(data.error ?? 'Something went wrong — try again')
       }
@@ -324,6 +325,9 @@ function PlaylistBuilder({
   if (created) {
     return (
       <div className="flex flex-col gap-4">
+        {createError && (
+          <p className="text-xs text-[#C4784A] bg-[#FDF5EE] border border-[#E8C9A0] rounded-lg px-3 py-2">{createError}</p>
+        )}
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-widest uppercase text-[#4ade80]/80 mb-1">Saved to Spotify ✓</p>

@@ -23,14 +23,23 @@ export async function POST(request: NextRequest) {
       }
     ) as { id: string; external_urls: { spotify: string } }
 
+    let trackError: string | undefined
     if (trackUris?.length) {
-      await spotifyFetch(user, `/playlists/${playlist.id}/tracks`, {
-        method: 'POST',
-        body: JSON.stringify({ uris: trackUris }),
-      })
+      try {
+        await spotifyFetch(user, `/playlists/${playlist.id}/tracks`, {
+          method: 'POST',
+          body: JSON.stringify({ uris: trackUris }),
+        })
+      } catch (e) {
+        trackError = e instanceof Error ? e.message : 'Failed to add tracks'
+      }
     }
 
-    return NextResponse.json({ url: playlist.external_urls.spotify, id: playlist.id })
+    return NextResponse.json({
+      url: playlist.external_urls.spotify,
+      id: playlist.id,
+      trackError,
+    })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'error'
     return NextResponse.json({ error: msg }, { status: 500 })
