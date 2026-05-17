@@ -100,8 +100,9 @@ export async function spotifyFetch(
 
   if (res.status === 204) return null
   if (!res.ok) {
-    const err = await res.json().catch(() => ({})) as { error?: { message?: string } }
-    throw new Error(err.error?.message ?? `Spotify API error: ${res.status}`)
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string; status?: number } }
+    const msg = err.error?.message ?? 'Unknown error'
+    throw new Error(`Spotify ${res.status}: ${msg}`)
   }
   return res.json()
 }
