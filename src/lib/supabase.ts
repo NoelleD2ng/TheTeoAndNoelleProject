@@ -28,6 +28,15 @@ export type PlaceMetadata = {
   voice_note_url?: string
 }
 
+export type JournalEntry = {
+  id: string
+  type: 'journal' | 'love-note'
+  title: string | null
+  content: string
+  mood: string | null
+  created_at: string
+}
+
 export type Place = {
   id: string
   name: string

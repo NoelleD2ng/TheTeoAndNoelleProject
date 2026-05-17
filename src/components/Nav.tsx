@@ -5,12 +5,13 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
   Heart, CheckSquare, MapPin, Star,
-  Code2, Camera, Coffee, Music2, X, Menu, LogOut,
+  Code2, Camera, Coffee, Music2, BookOpen, X, Menu, LogOut,
 } from 'lucide-react'
 
 const navItems = [
   { href: '/',            label: 'Story',    icon: Heart },
   { href: '/todos',       label: 'To-Do',    icon: CheckSquare },
+  { href: '/journal',     label: 'Journal',  icon: BookOpen },
   { href: '/places',      label: 'Places',   icon: MapPin },
   { href: '/bucket-list', label: 'Bucket',   icon: Star },
   { href: '/projects',    label: 'Projects', icon: Code2 },
