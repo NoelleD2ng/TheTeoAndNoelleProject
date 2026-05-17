@@ -9,11 +9,13 @@ export function getAuthUrl(user: SpotifyUser, redirectUri: string): string {
   const scopes = [
     'user-read-currently-playing',
     'user-read-playback-state',
+    'user-modify-playback-state',
     'user-top-read',
     'user-library-read',
     'playlist-modify-public',
     'playlist-modify-private',
     'user-read-recently-played',
+    'streaming',
   ].join(' ')
 
   return `https://accounts.spotify.com/authorize?${new URLSearchParams({

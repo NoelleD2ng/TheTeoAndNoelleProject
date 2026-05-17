@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
+import SpotifyPlayer from '@/components/SpotifyPlayer'
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -158,12 +159,24 @@ function NowPlayingCard({
 // ── TrackRow ──────────────────────────────────────────────────────────────
 
 function TrackRow({
-  track, index, onAdd, added,
-}: { track: SpotifyTrack; index?: number; onAdd?: (t: SpotifyTrack) => void; added?: boolean }) {
+  track, index, onAdd, added, onPlay,
+}: { track: SpotifyTrack; index?: number; onAdd?: (t: SpotifyTrack) => void; added?: boolean; onPlay?: (t: SpotifyTrack) => void }) {
   return (
-    <div className="flex items-center gap-3 py-2.5 px-2 -mx-2 border-b border-[#E8DDD4]/50 last:border-0 hover:bg-[#F5EFE8]/60 rounded-xl transition-colors">
-      {index !== undefined && (
+    <div className="flex items-center gap-3 py-2.5 px-2 -mx-2 border-b border-[#E8DDD4]/50 last:border-0 hover:bg-[#F5EFE8]/60 rounded-xl transition-colors group">
+      {onPlay && (
+        <button
+          onClick={() => onPlay(track)}
+          className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-white text-xs transition-all opacity-0 group-hover:opacity-100"
+          style={{ background: '#C4784A' }}
+        >
+          ▶
+        </button>
+      )}
+      {!onPlay && index !== undefined && (
         <span className="w-5 text-right shrink-0 text-xs text-[#AE9B8E]">{index + 1}</span>
+      )}
+      {onPlay && index !== undefined && (
+        <span className="w-5 text-right shrink-0 text-xs text-[#AE9B8E] group-hover:hidden">{index + 1}</span>
       )}
       {track.album.images[0] && (
         <div className="shrink-0 rounded overflow-hidden" style={{ width: 36, height: 36 }}>
@@ -395,6 +408,8 @@ export default function SpotifyPage() {
   const [liked, setLiked] = useState<Partial<Record<UserKey, SpotifyTrack[]>>>({})
   const [loadingTab, setLoadingTab] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [activeListener, setActiveListener] = useState<UserKey | null>(null)
+  const [deviceId, setDeviceId] = useState<string | null>(null)
 
   // Check URL params for connection feedback
   useEffect(() => {
@@ -406,6 +421,31 @@ export default function SpotifyPage() {
     }
     setTimeout(() => setToast(null), 4000)
   }, [])
+
+  // Init listener from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('spotify-listener') as UserKey | null
+    if (saved === 'teo' || saved === 'noelle') setActiveListener(saved)
+  }, [])
+
+  const changeListener = (u: UserKey) => {
+    setActiveListener(u)
+    setDeviceId(null)
+    localStorage.setItem('spotify-listener', u)
+  }
+
+  async function handlePlay(track: SpotifyTrack) {
+    if (!activeListener || !deviceId) {
+      setToast('Select who\'s listening first')
+      setTimeout(() => setToast(null), 3000)
+      return
+    }
+    await fetch('/api/spotify/play', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: activeListener, uris: [track.uri], deviceId }),
+    })
+  }
 
   // Load connection status
   const loadStatus = useCallback(async () => {
@@ -548,6 +588,40 @@ export default function SpotifyPage() {
           ))}
         </div>
 
+        {/* Player + listener selector */}
+        {connected.length > 0 && (
+          <div className="rounded-2xl p-5 mb-6" style={glass}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[10px] tracking-widest uppercase text-[#C4784A]/60">Listening as</p>
+              <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#F5EFE8', border: '1px solid #E8DDD4' }}>
+                {connected.map(u => (
+                  <button
+                    key={u}
+                    onClick={() => changeListener(u)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                    style={{
+                      background: activeListener === u ? COLORS[u] : 'transparent',
+                      color: activeListener === u ? '#fff' : '#7A6155',
+                    }}
+                  >
+                    {LABELS[u]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {activeListener && status[activeListener].connected ? (
+              <SpotifyPlayer
+                key={activeListener}
+                user={activeListener}
+                color={COLORS[activeListener]}
+                onDeviceReady={setDeviceId}
+              />
+            ) : (
+              <p className="text-xs text-[#AE9B8E] text-center py-2">Select who&apos;s listening above</p>
+            )}
+          </div>
+        )}
+
         {/* Tabs — only shown when at least one user is connected */}
         {connected.length > 0 && (
           <>
@@ -616,7 +690,7 @@ export default function SpotifyPage() {
                 <p className="text-center text-[#AE9B8E] py-12 text-sm animate-pulse">Loading…</p>
               ) : tab === 'top-tracks' ? (
                 (topTracks[tracksKey] ?? []).length > 0 ? (
-                  topTracks[tracksKey]!.map((t, i) => <TrackRow key={t.id} track={t} index={i} />)
+                  topTracks[tracksKey]!.map((t, i) => <TrackRow key={t.id} track={t} index={i} onPlay={handlePlay} />)
                 ) : (
                   <p className="text-center text-[#AE9B8E] py-12 text-sm">No data yet</p>
                 )
@@ -628,7 +702,7 @@ export default function SpotifyPage() {
                 )
               ) : tab === 'liked' ? (
                 (liked[browseUser] ?? []).length > 0 ? (
-                  liked[browseUser]!.map((t, i) => <TrackRow key={t.id} track={t} index={i} />)
+                  liked[browseUser]!.map((t, i) => <TrackRow key={t.id} track={t} index={i} onPlay={handlePlay} />)
                 ) : (
                   <p className="text-center text-[#AE9B8E] py-12 text-sm">No liked songs loaded</p>
                 )
