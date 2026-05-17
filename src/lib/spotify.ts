@@ -39,7 +39,7 @@ export async function exchangeCode(code: string, redirectUri: string) {
     body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: redirectUri }),
   })
   if (!res.ok) throw new Error(`Token exchange failed: ${await res.text()}`)
-  return res.json() as Promise<{ access_token: string; refresh_token: string; expires_in: number }>
+  return res.json() as Promise<{ access_token: string; refresh_token: string; expires_in: number; scope: string }>
 }
 
 async function refreshAccessToken(refreshToken: string) {

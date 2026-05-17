@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const tokens = await exchangeCode(code, redirectUri)
+    console.log(`[spotify/callback] user=${user} granted_scopes="${tokens.scope ?? 'none'}"`)
 
     const profileRes = await fetch('https://api.spotify.com/v1/me', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
