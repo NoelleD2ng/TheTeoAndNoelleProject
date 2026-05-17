@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      { protocol: 'https', hostname: 'i.scdn.co' },
+      { protocol: 'https', hostname: 'mosaic.scdn.co' },
+      { protocol: 'https', hostname: 'lineup-images.scdn.co' },
     ],
   },
 };
