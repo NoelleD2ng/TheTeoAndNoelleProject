@@ -4,19 +4,17 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
-  Heart, CheckSquare, Calendar, MapPin, Star,
-  Code2, Camera, Sparkles, Coffee, Music2, X, Menu, LogOut,
+  Heart, CheckSquare, MapPin, Star,
+  Code2, Camera, Coffee, Music2, X, Menu, LogOut,
 } from 'lucide-react'
 
 const navItems = [
   { href: '/',            label: 'Story',    icon: Heart },
   { href: '/todos',       label: 'To-Do',    icon: CheckSquare },
-  { href: '/plans',       label: 'Plans',    icon: Calendar },
   { href: '/places',      label: 'Places',   icon: MapPin },
   { href: '/bucket-list', label: 'Bucket',   icon: Star },
   { href: '/projects',    label: 'Projects', icon: Code2 },
   { href: '/memories',    label: 'Memories', icon: Camera },
-  { href: '/fun-facts',   label: 'Facts',    icon: Sparkles },
   { href: '/date-ideas',  label: 'Dates',    icon: Coffee },
   { href: '/spotify',     label: 'Music',    icon: Music2 },
 ]
