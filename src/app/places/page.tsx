@@ -7,7 +7,7 @@ import type { MapPlace } from '@/components/PlacesMap'
 
 const PlacesMap = dynamic(() => import('@/components/PlacesMap'), { ssr: false })
 
-type GeoResult = { place_id: number; display_name: string; lat: string; lon: string }
+type GeoResult = { place_id: number; display_name: string; lat: string; lon: string; type: string; class: string; addresstype?: string }
 type FlyTarget = { lat: number; lng: number; ts: number; zoom?: number } | null
 type Filter = 'all' | 'want-to-go' | 'visited'
 
@@ -194,8 +194,38 @@ export default function PlacesPage() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  function geoZoom(r: GeoResult): number {
+    const t = r.addresstype ?? r.type ?? ''
+    if (['country'].includes(t)) return 5
+    if (['state', 'county', 'region'].includes(t)) return 8
+    if (['city', 'municipality'].includes(t)) return 12
+    if (['town', 'borough'].includes(t)) return 13
+    if (['village', 'suburb', 'quarter', 'neighbourhood'].includes(t)) return 15
+    if (r.class === 'boundary' || r.class === 'place') return 12
+    return 16
+  }
+
+  function geoIcon(r: GeoResult): string {
+    const c = r.class; const t = r.type ?? ''
+    if (c === 'amenity' && ['restaurant', 'cafe', 'bar', 'fast_food', 'food_court'].includes(t)) return '🍽'
+    if (c === 'amenity' && ['museum', 'theatre', 'cinema', 'arts_centre'].includes(t)) return '🏛'
+    if (c === 'amenity' && ['hotel', 'hostel', 'guest_house'].includes(t)) return '🏨'
+    if (c === 'amenity' && t === 'hospital') return '🏥'
+    if (c === 'amenity' && t === 'university') return '🎓'
+    if (c === 'aeroway' || t === 'airport') return '✈️'
+    if (c === 'natural' && ['peak', 'volcano', 'mountain_range'].includes(t)) return '⛰'
+    if (c === 'natural' && ['beach', 'bay', 'coastline'].includes(t)) return '🏖'
+    if (c === 'leisure' && ['park', 'garden', 'nature_reserve'].includes(t)) return '🌳'
+    if (c === 'tourism' && ['attraction', 'viewpoint', 'theme_park'].includes(t)) return '✨'
+    if (c === 'place' && ['country'].includes(t)) return '🌍'
+    if (c === 'place' && ['city', 'town', 'municipality'].includes(t)) return '🏙'
+    if (c === 'place' && ['village', 'suburb', 'neighbourhood', 'borough', 'quarter'].includes(t)) return '🏘'
+    if (c === 'boundary') return '🏙'
+    return '📍'
+  }
+
   function flyToGeo(r: GeoResult) {
-    setFlyTarget({ lat: parseFloat(r.lat), lng: parseFloat(r.lon), ts: Date.now() })
+    setFlyTarget({ lat: parseFloat(r.lat), lng: parseFloat(r.lon), ts: Date.now(), zoom: geoZoom(r) })
     setQuery(r.display_name.split(',')[0])
     setGeoResults([])
   }
@@ -295,7 +325,7 @@ export default function PlacesPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ paddingTop: 64 }}>
 
-      <div className="shrink-0 px-4 py-2.5 flex items-center gap-4" style={{ ...glass, borderBottom: '1px solid #E8DDD4' }}>
+      <div className="shrink-0 px-4 py-2.5 flex items-center gap-4" style={{ ...glass, borderBottom: '1px solid #E8DDD4', position: 'relative', zIndex: 1100 }}>
         <div className="shrink-0">
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#C4784A]/60 leading-none">explore</p>
           <h1 className="text-lg font-bold text-[#2C1A0E] leading-tight">Places</h1>
@@ -314,13 +344,21 @@ export default function PlacesPage() {
             {query && !geoLoading && <button onClick={() => { setQuery(''); setGeoResults([]) }} className="text-[#7A6155]/30 hover:text-[#7A6155]/60 transition-colors text-base leading-none">×</button>}
           </div>
           {geoResults.length > 0 && (
-            <div className="absolute top-full mt-1.5 left-0 right-0 rounded-xl overflow-hidden z-50 shadow-2xl" style={{ background: '#FAF8F5', border: '1px solid #E8DDD4' }}>
-              {geoResults.map(r => (
-                <button key={r.place_id} onClick={() => flyToGeo(r)} className="w-full text-left px-4 py-2.5 text-sm text-[#7A6155]/80 hover:bg-[#F5EFE8] hover:text-[#2C1A0E] transition-colors border-b border-[#E8DDD4] last:border-0">
-                  <span className="font-medium">{r.display_name.split(',')[0]}</span>
-                  <span className="text-[#7A6155]/35 text-xs ml-1.5">{r.display_name.split(',').slice(1, 3).join(',')}</span>
-                </button>
-              ))}
+            <div className="absolute top-full mt-2 left-0 right-0 rounded-2xl overflow-hidden shadow-2xl" style={{ background: '#FAF8F5', border: '1px solid #E8DDD4', zIndex: 2000 }}>
+              {geoResults.map(r => {
+                const parts = r.display_name.split(',').map(s => s.trim())
+                const name = parts[0]
+                const breadcrumb = parts.slice(1, 3).filter(Boolean).join(', ')
+                return (
+                  <button key={r.place_id} onClick={() => flyToGeo(r)} className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-[#F5EFE8] transition-colors border-b border-[#E8DDD4]/60 last:border-0">
+                    <span className="text-lg shrink-0 leading-none">{geoIcon(r)}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-[#2C1A0E] truncate">{name}</p>
+                      {breadcrumb && <p className="text-xs text-[#7A6155]/45 truncate mt-0.5">{breadcrumb}</p>}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
