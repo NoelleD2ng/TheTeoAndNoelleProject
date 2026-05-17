@@ -1,22 +1,19 @@
 'use client'
 
-import { useState } from 'react'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { useEffect, useState } from 'react'
+import { supabase, type Todo } from '@/lib/supabase'
 
-type Task = {
-  id: string
-  text: string
-  done: boolean
-  owner: 'teo' | 'noelle' | 'both'
-}
+type Owner = 'teo' | 'noelle' | 'both'
 
 function TaskList({
   title, emoji, owner, tasks, onAdd, onToggle, onDelete,
 }: {
-  title: string; emoji: string; owner: 'teo' | 'noelle' | 'both'
-  tasks: Task[]
-  onAdd: (text: string, owner: 'teo' | 'noelle' | 'both') => void
-  onToggle: (id: string) => void
+  title: string
+  emoji: string
+  owner: Owner
+  tasks: Todo[]
+  onAdd: (text: string, owner: Owner) => void
+  onToggle: (id: string, done: boolean) => void
   onDelete: (id: string) => void
 }) {
   const [input, setInput] = useState('')
@@ -45,7 +42,7 @@ function TaskList({
         {filtered.length === 0 && <p className="text-[#AE9B8E] text-xs text-center py-4">no tasks yet</p>}
         {filtered.map(task => (
           <div key={task.id} className={`flex items-center gap-2.5 p-2 rounded-lg group ${task.done ? 'opacity-50' : ''}`}>
-            <button onClick={() => onToggle(task.id)} className="shrink-0">
+            <button onClick={() => onToggle(task.id, task.done)} className="shrink-0">
               <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${task.done ? 'border-[#C4784A] bg-[#C4784A]' : 'border-[#E8DDD4] hover:border-[#C4784A]/50'}`}>
                 {task.done && <span className="text-white text-[9px] leading-none font-bold">✓</span>}
               </div>
@@ -60,19 +57,40 @@ function TaskList({
 }
 
 export default function TodosPage() {
-  const [tasks, setTasks, hydrated] = useLocalStorage<Task[]>('tno-tasks', [])
+  const [tasks, setTasks] = useState<Todo[]>([])
+  const [loading, setLoading] = useState(true)
 
-  function addTask(text: string, owner: 'teo' | 'noelle' | 'both') {
-    setTasks(prev => [...prev, { id: crypto.randomUUID(), text, done: false, owner }])
+  useEffect(() => {
+    supabase
+      .from('todos')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .then(({ data }) => {
+        setTasks(data ?? [])
+        setLoading(false)
+      })
+  }, [])
+
+  async function addTask(text: string, owner: Owner) {
+    const { data } = await supabase
+      .from('todos')
+      .insert({ text, done: false, owner })
+      .select()
+      .single()
+    if (data) setTasks(prev => [...prev, data])
   }
-  function toggleTask(id: string) {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t))
+
+  async function toggleTask(id: string, done: boolean) {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, done: !done } : t))
+    await supabase.from('todos').update({ done: !done }).eq('id', id)
   }
-  function deleteTask(id: string) {
+
+  async function deleteTask(id: string) {
     setTasks(prev => prev.filter(t => t.id !== id))
+    await supabase.from('todos').delete().eq('id', id)
   }
 
-  if (!hydrated) return null
+  if (loading) return null
 
   return (
     <div className="pt-20 p-6 md:p-10">

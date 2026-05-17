@@ -1,14 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useLocalStorage } from '@/hooks/useLocalStorage'
-
-type BucketItem = {
-  id: string
-  text: string
-  done: boolean
-  category: 'travel' | 'experience' | 'food' | 'adventure' | 'learn' | 'other'
-}
+import { useEffect, useState } from 'react'
+import { supabase, type BucketItem } from '@/lib/supabase'
 
 const categories = {
   travel:     { label: 'Travel',     emoji: '✈️' },
@@ -21,88 +14,99 @@ const categories = {
 
 type Category = keyof typeof categories
 
-const BUCKET_VERSION = 1
-
-const DEFAULT_ITEMS: BucketItem[] = [
-  { id: '1',  text: 'Korean BBQ',                                              done: false, category: 'food' },
-  { id: '2',  text: 'Make a pizza together',                                   done: false, category: 'food' },
-  { id: '3',  text: 'Make cheesecake',                                         done: false, category: 'food' },
-  { id: '4',  text: 'Go to arcade',                                            done: false, category: 'experience' },
-  { id: '5',  text: 'Go fishing',                                              done: false, category: 'adventure' },
-  { id: '6',  text: "Drive Teo's sister to Buffalo",                           done: false, category: 'other' },
-  { id: '7',  text: "Cut Teo's hair",                                          done: false, category: 'other' },
-  { id: '8',  text: "Paint Teo's room",                                        done: false, category: 'experience' },
-  { id: '9',  text: "Go to Sara's",                                            done: false, category: 'experience' },
-  { id: '10', text: 'Build a productivity app together',                       done: false, category: 'learn' },
-  { id: '11', text: 'Do a research project together',                          done: false, category: 'learn' },
-  { id: '12', text: 'Drink boba',                                              done: false, category: 'food' },
-  { id: '13', text: 'Starbucks date',                                          done: false, category: 'food' },
-  { id: '14', text: 'Make music together',                                     done: false, category: 'experience' },
-  { id: '15', text: 'Watch anime together',                                    done: false, category: 'experience' },
-  { id: '16', text: 'Get Pokémon cards',                                       done: false, category: 'experience' },
-  { id: '17', text: 'Go to Toronto',                                           done: false, category: 'travel' },
-  { id: '18', text: 'Go to Waldameer',                                         done: false, category: 'adventure' },
-  { id: '19', text: "Get McDonald's at 3am",                                   done: false, category: 'food' },
-  { id: '20', text: 'Go to the zoo',                                           done: false, category: 'adventure' },
-  { id: '21', text: 'Whole day of Pokémon GO',                                 done: false, category: 'adventure' },
-  { id: '22', text: 'Food truck Fridays at Shade Beach',                       done: false, category: 'food' },
-  { id: '23', text: 'Go to the library together',                              done: false, category: 'learn' },
-  { id: '24', text: 'Bowling at Round One',                                    done: false, category: 'experience' },
-  { id: '25', text: 'Try Tipsy Bean café',                                     done: false, category: 'food' },
-  { id: '26', text: 'Hackathon-style coding session outside the apartment',    done: false, category: 'learn' },
-  { id: '27', text: 'Beach at night',                                          done: false, category: 'adventure' },
-  { id: '28', text: 'Escape room',                                             done: false, category: 'adventure' },
-  { id: '29', text: 'Board game night',                                        done: false, category: 'experience' },
-  { id: '30', text: 'Bath bombs',                                              done: false, category: 'experience' },
-  { id: '31', text: 'Make summer-themed relationship bracelets',               done: false, category: 'experience' },
-  { id: '32', text: 'Take new photo booth photos',                             done: false, category: 'experience' },
-  { id: '33', text: 'Makeout in the rain',                                     done: false, category: 'adventure' },
-  { id: '34', text: 'Build and host a website on Vercel together',             done: false, category: 'learn' },
-  { id: '35', text: 'Role play 😈',                                            done: false, category: 'other' },
-  { id: '36', text: 'One person picks snacks, other picks the movie',          done: false, category: 'experience' },
-  { id: '37', text: 'Watch a YouTube rabbit hole together',                    done: false, category: 'experience' },
-  { id: '38', text: 'Learn about investing together',                          done: false, category: 'learn' },
-  { id: '39', text: 'Play It Takes Two or another co-op game',                 done: false, category: 'experience' },
-  { id: '40', text: 'Watch a documentary about AI or tech',                    done: false, category: 'learn' },
+const DEFAULTS: Omit<BucketItem, 'id' | 'created_at'>[] = [
+  { text: 'Korean BBQ',                                           done: false, category: 'food' },
+  { text: 'Make a pizza together',                                done: false, category: 'food' },
+  { text: 'Make cheesecake',                                      done: false, category: 'food' },
+  { text: 'Go to arcade',                                         done: false, category: 'experience' },
+  { text: 'Go fishing',                                           done: false, category: 'adventure' },
+  { text: "Drive Teo's sister to Buffalo",                        done: false, category: 'other' },
+  { text: "Cut Teo's hair",                                       done: false, category: 'other' },
+  { text: "Paint Teo's room",                                     done: false, category: 'experience' },
+  { text: "Go to Sara's",                                         done: false, category: 'experience' },
+  { text: 'Build a productivity app together',                    done: false, category: 'learn' },
+  { text: 'Do a research project together',                       done: false, category: 'learn' },
+  { text: 'Drink boba',                                           done: false, category: 'food' },
+  { text: 'Starbucks date',                                       done: false, category: 'food' },
+  { text: 'Make music together',                                  done: false, category: 'experience' },
+  { text: 'Watch anime together',                                 done: false, category: 'experience' },
+  { text: 'Get Pokémon cards',                                    done: false, category: 'experience' },
+  { text: 'Go to Toronto',                                        done: false, category: 'travel' },
+  { text: 'Go to Waldameer',                                      done: false, category: 'adventure' },
+  { text: "Get McDonald's at 3am",                                done: false, category: 'food' },
+  { text: 'Go to the zoo',                                        done: false, category: 'adventure' },
+  { text: 'Whole day of Pokémon GO',                              done: false, category: 'adventure' },
+  { text: 'Food truck Fridays at Shade Beach',                    done: false, category: 'food' },
+  { text: 'Go to the library together',                           done: false, category: 'learn' },
+  { text: 'Bowling at Round One',                                 done: false, category: 'experience' },
+  { text: 'Try Tipsy Bean café',                                  done: false, category: 'food' },
+  { text: 'Hackathon-style coding session outside the apartment', done: false, category: 'learn' },
+  { text: 'Beach at night',                                       done: false, category: 'adventure' },
+  { text: 'Escape room',                                          done: false, category: 'adventure' },
+  { text: 'Board game night',                                     done: false, category: 'experience' },
+  { text: 'Bath bombs',                                           done: false, category: 'experience' },
+  { text: 'Make summer-themed relationship bracelets',            done: false, category: 'experience' },
+  { text: 'Take new photo booth photos',                          done: false, category: 'experience' },
+  { text: 'Makeout in the rain',                                  done: false, category: 'adventure' },
+  { text: 'Build and host a website on Vercel together',          done: false, category: 'learn' },
+  { text: 'Role play 😈',                                         done: false, category: 'other' },
+  { text: 'One person picks snacks, other picks the movie',       done: false, category: 'experience' },
+  { text: 'Watch a YouTube rabbit hole together',                 done: false, category: 'experience' },
+  { text: 'Learn about investing together',                       done: false, category: 'learn' },
+  { text: 'Play It Takes Two or another co-op game',              done: false, category: 'experience' },
+  { text: 'Watch a documentary about AI or tech',                 done: false, category: 'learn' },
 ]
 
 export default function BucketListPage() {
-  const [items, setItems, hydrated] = useLocalStorage<BucketItem[]>('tno-bucket', DEFAULT_ITEMS)
-  const [version, setVersion] = useLocalStorage<number>('tno-bucket-version', 0)
+  const [items, setItems] = useState<BucketItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [text, setText] = useState('')
   const [category, setCategory] = useState<Category>('experience')
 
-  if (hydrated && version !== BUCKET_VERSION) {
-    setItems(prev => {
-      const existingIds = new Set(DEFAULT_ITEMS.map(i => i.id))
-      const userAdded = prev.filter(i => !existingIds.has(i.id))
-      const merged = DEFAULT_ITEMS.map(def => {
-        const existing = prev.find(p => p.id === def.id)
-        return existing ? { ...def, done: existing.done } : def
+  useEffect(() => {
+    supabase
+      .from('bucket_list')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .then(async ({ data }) => {
+        if (data && data.length === 0) {
+          const { data: seeded } = await supabase
+            .from('bucket_list')
+            .insert(DEFAULTS)
+            .select()
+          setItems(seeded ?? [])
+        } else {
+          setItems(data ?? [])
+        }
+        setLoading(false)
       })
-      return [...merged, ...userAdded]
-    })
-    setVersion(BUCKET_VERSION)
-  }
+  }, [])
 
-  function addItem(e: React.FormEvent) {
+  async function addItem(e: React.FormEvent) {
     e.preventDefault()
     if (!text.trim()) return
-    setItems(prev => [...prev, { id: crypto.randomUUID(), text: text.trim(), done: false, category }])
+    const { data } = await supabase
+      .from('bucket_list')
+      .insert({ text: text.trim(), done: false, category })
+      .select()
+      .single()
+    if (data) setItems(prev => [...prev, data])
     setText('')
   }
 
-  function toggle(id: string) {
-    setItems(prev => prev.map(i => (i.id === id ? { ...i, done: !i.done } : i)))
+  async function toggle(id: string, done: boolean) {
+    setItems(prev => prev.map(i => i.id === id ? { ...i, done: !done } : i))
+    await supabase.from('bucket_list').update({ done: !done }).eq('id', id)
   }
 
-  function remove(id: string) {
+  async function remove(id: string) {
     setItems(prev => prev.filter(i => i.id !== id))
+    await supabase.from('bucket_list').delete().eq('id', id)
   }
 
   const remaining = items.filter(i => !i.done).length
 
-  if (!hydrated) return null
+  if (loading) return null
 
   return (
     <div className="p-6 md:p-10 max-w-2xl">
@@ -110,7 +114,9 @@ export default function BucketListPage() {
         <p className="text-[10px] tracking-[0.3em] uppercase text-[#C4784A]/70 mb-1">dreams</p>
         <h1 className="text-3xl font-semibold text-[#2C1A0E]">Bucket List 🌟</h1>
         <p className="text-[#7A6155] mt-1 text-sm">
-          {items.length === 0 ? 'all the things we want to do together' : `${items.filter(i => i.done).length} of ${items.length} done`}
+          {items.length === 0
+            ? 'all the things we want to do together'
+            : `${items.filter(i => i.done).length} of ${items.length} done`}
         </p>
       </div>
 
@@ -138,10 +144,10 @@ export default function BucketListPage() {
           <div className="flex flex-col gap-2">
             {items.filter(i => !i.done).map(item => (
               <div key={item.id} className="bg-white rounded-xl border border-[#E8DDD4] px-4 py-3 flex items-center gap-3 group" style={{ boxShadow: '0 1px 8px rgba(44,26,14,0.04)' }}>
-                <button onClick={() => toggle(item.id)}>
+                <button onClick={() => toggle(item.id, item.done)}>
                   <div className="w-5 h-5 rounded-full border-2 border-[#E8DDD4] hover:border-[#C4784A]/50 transition-colors" />
                 </button>
-                <span className="text-lg">{categories[item.category].emoji}</span>
+                <span className="text-lg">{categories[item.category as Category]?.emoji ?? '⭐'}</span>
                 <span className="flex-1 text-sm text-[#2C1A0E]">{item.text}</span>
                 <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-[#AE9B8E] hover:text-[#C4784A] text-xs transition-all">✕</button>
               </div>
@@ -156,12 +162,12 @@ export default function BucketListPage() {
           <div className="flex flex-col gap-2">
             {items.filter(i => i.done).map(item => (
               <div key={item.id} className="bg-white rounded-xl border border-[#E8DDD4] px-4 py-3 flex items-center gap-3 opacity-50 group">
-                <button onClick={() => toggle(item.id)}>
+                <button onClick={() => toggle(item.id, item.done)}>
                   <div className="w-5 h-5 rounded-full bg-[#C4784A] border-2 border-[#C4784A] flex items-center justify-center">
                     <span className="text-white text-xs leading-none">✓</span>
                   </div>
                 </button>
-                <span className="text-lg">{categories[item.category].emoji}</span>
+                <span className="text-lg">{categories[item.category as Category]?.emoji ?? '⭐'}</span>
                 <span className="flex-1 text-sm text-[#7A6155] line-through">{item.text}</span>
                 <button onClick={() => remove(item.id)} className="opacity-0 group-hover:opacity-100 text-[#AE9B8E] hover:text-[#C4784A] text-xs transition-all">✕</button>
               </div>

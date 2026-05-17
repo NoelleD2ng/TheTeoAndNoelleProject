@@ -38,6 +38,32 @@ export type JournalEntry = {
   created_at: string
 }
 
+export type Todo = {
+  id: string
+  text: string
+  done: boolean
+  owner: 'teo' | 'noelle' | 'both'
+  created_at: string
+}
+
+export type BucketItem = {
+  id: string
+  text: string
+  done: boolean
+  category: 'travel' | 'experience' | 'food' | 'adventure' | 'learn' | 'other'
+  created_at: string
+}
+
+export type DateIdea = {
+  id: string
+  title: string
+  category: 'outdoor' | 'indoor' | 'food' | 'travel' | 'fun' | 'creative'
+  done: boolean
+  rating: number
+  notes: string | null
+  created_at: string
+}
+
 export type CurrentlyEntry = {
   user_name: 'teo' | 'noelle'
   watching: string | null
