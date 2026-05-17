@@ -47,8 +47,7 @@ const PIN_CSS = `
 
 function makeIcon(status: 'want-to-go' | 'visited', selected: boolean, memCount: number) {
   const isV = status === 'visited'
-  const base = 26 + Math.min(memCount * 4, 18)
-  const sz = selected ? base + 10 : base
+  const sz = 26 + Math.min(memCount * 4, 18)
   const cls = ['map-pin', isV ? 'pin-visited' : 'pin-dream', selected ? 'pin-selected' : ''].filter(Boolean).join(' ')
   const fs = Math.round(sz * 0.38)
   return L.divIcon({
@@ -125,25 +124,22 @@ function PinsLayer({ places, selectedId, markerJustClickedRef, onSelectPlace, se
     }
   }, [map, places, markerJustClickedRef])
 
-  // Update icons when selection changes without recreating markers
+  // Toggle selection class directly on the DOM — avoids setIcon/appendChild entirely
   useEffect(() => {
     const prev = prevSelectedRef.current
     prevSelectedRef.current = selectedId
-    const existing = markersRef.current
 
     if (prev !== null) {
-      const p = places.find(x => x.id === prev)
-      const m = existing.get(prev)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (p && m && (m as any)._map) m.setIcon(makeIcon(p.status, false, p.linked_memory_ids?.length ?? 0))
+      const inner = (markersRef.current.get(prev) as any)?._icon?.querySelector('.map-pin') as HTMLElement | null
+      inner?.classList.remove('pin-selected')
     }
     if (selectedId !== null) {
-      const p = places.find(x => x.id === selectedId)
-      const m = existing.get(selectedId)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (p && m && (m as any)._map) m.setIcon(makeIcon(p.status, true, p.linked_memory_ids?.length ?? 0))
+      const inner = (markersRef.current.get(selectedId) as any)?._icon?.querySelector('.map-pin') as HTMLElement | null
+      inner?.classList.add('pin-selected')
     }
-  }, [selectedId, places])
+  }, [selectedId])
 
   // Cleanup all markers on unmount
   useEffect(() => () => {
