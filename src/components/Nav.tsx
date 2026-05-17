@@ -5,19 +5,19 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
   Heart, CheckSquare, MapPin, Star,
-  Code2, Camera, Coffee, Music2, BookOpen, X, Menu, LogOut,
+  Code2, Camera, Coffee, Radio, BookOpen, X, Menu, LogOut,
 } from 'lucide-react'
 
 const navItems = [
-  { href: '/',            label: 'Story',    icon: Heart },
-  { href: '/todos',       label: 'To-Do',    icon: CheckSquare },
-  { href: '/journal',     label: 'Journal',  icon: BookOpen },
-  { href: '/places',      label: 'Places',   icon: MapPin },
-  { href: '/bucket-list', label: 'Bucket',   icon: Star },
-  { href: '/projects',    label: 'Projects', icon: Code2 },
-  { href: '/memories',    label: 'Memories', icon: Camera },
-  { href: '/date-ideas',  label: 'Dates',    icon: Coffee },
-  { href: '/spotify',     label: 'Music',    icon: Music2 },
+  { href: '/',            label: 'Story',     icon: Heart },
+  { href: '/todos',       label: 'To-Do',     icon: CheckSquare },
+  { href: '/journal',     label: 'Journal',   icon: BookOpen },
+  { href: '/places',      label: 'Places',    icon: MapPin },
+  { href: '/bucket-list', label: 'Bucket',    icon: Star },
+  { href: '/projects',    label: 'Projects',  icon: Code2 },
+  { href: '/memories',    label: 'Memories',  icon: Camera },
+  { href: '/date-ideas',  label: 'Dates',     icon: Coffee },
+  { href: '/currently',   label: 'Currently', icon: Radio },
 ]
 
 export default function Nav() {

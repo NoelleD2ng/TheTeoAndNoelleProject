@@ -38,6 +38,13 @@ export type JournalEntry = {
   created_at: string
 }
 
+export type CurrentlyEntry = {
+  user_name: 'teo' | 'noelle'
+  watching: string | null
+  obsessed_with: string | null
+  updated_at: string
+}
+
 export type Place = {
   id: string
   name: string
