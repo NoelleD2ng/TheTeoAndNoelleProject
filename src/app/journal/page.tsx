@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase, type JournalEntry } from '@/lib/supabase'
 
 const MOODS = ['✨', '🥰', '😊', '😌', '🤔', '😔', '😤', '🥺']
-const serif = { fontFamily: 'Georgia, "Times New Roman", serif' }
+const serif = { fontFamily: 'var(--font-serif, Georgia, "Times New Roman", serif)' }
 
 const CARD_CONFIG = [
   { rot: -3,  anim: 'note-float-a', delay: 0   },
@@ -118,51 +118,7 @@ export default function JournalPage() {
 
   return (
     <>
-      <style>{`
-        @keyframes note-float-a {
-          0%, 100% { transform: translateY(0px);   }
-          50%       { transform: translateY(-9px);  }
-        }
-        @keyframes note-float-b {
-          0%, 100% { transform: translateY(0px);   }
-          35%       { transform: translateY(-7px);  }
-          70%       { transform: translateY(-12px); }
-        }
-        @keyframes note-float-c {
-          0%, 100% { transform: translateY(0px);   }
-          25%       { transform: translateY(-11px); }
-          75%       { transform: translateY(-5px);  }
-        }
-        @keyframes fade-up {
-          from { opacity: 0; transform: translateY(18px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes modal-in {
-          from { opacity: 0; transform: scale(0.93) translateY(22px); }
-          to   { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .fade-in  { animation: fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-        .modal-in { animation: modal-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both; }
-        .paper-bg {
-          background:
-            radial-gradient(ellipse at 15% 10%, rgba(196,120,74,0.05) 0%, transparent 55%),
-            radial-gradient(ellipse at 85% 90%, rgba(196,120,74,0.04) 0%, transparent 55%),
-            #FDFAF7;
-        }
-        .entry-card {
-          transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
-                      box-shadow 0.25s ease;
-          cursor: pointer;
-        }
-        .entry-card:hover {
-          transform: rotate(0deg) scale(1.04) !important;
-          box-shadow: 0 16px 48px rgba(44,26,14,0.18) !important;
-          z-index: 10;
-          position: relative;
-        }
-      `}</style>
-
-      <div className="min-h-screen paper-bg" style={{ paddingTop: 64 }}>
+      <div className="min-h-screen journal-paper-bg" style={{ paddingTop: 64 }}>
 
         {/* ── Page header ── */}
         <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-8 sm:pt-14 pb-6 flex items-end justify-between">
@@ -187,7 +143,7 @@ export default function JournalPage() {
         </div>
 
         {/* ── Welcome letter ── */}
-        <div className="max-w-2xl mx-auto px-4 sm:px-8 pb-10 sm:pb-14 fade-in">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 pb-10 sm:pb-14 journal-fade-in">
           <div
             className="rounded-2xl sm:rounded-3xl px-6 py-8 sm:px-10 sm:py-10"
             style={{
@@ -288,7 +244,7 @@ export default function JournalPage() {
                   }}
                 >
                   <div
-                    className="entry-card rounded-2xl p-5"
+                    className="journal-entry-card rounded-2xl p-5"
                     style={{
                       transform: `rotate(${rot}deg)`,
                       background: love
@@ -352,7 +308,7 @@ export default function JournalPage() {
           onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}
         >
           <div
-            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col modal-in rounded-t-3xl"
+            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col journal-modal-in rounded-t-3xl"
             style={{
               background: '#FDFAF7',
               border: '1px solid #EDE4DA',
@@ -442,7 +398,7 @@ export default function JournalPage() {
           onClick={e => { if (e.target === e.currentTarget) setComposing(false) }}
         >
           <div
-            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col modal-in rounded-t-3xl"
+            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col journal-modal-in rounded-t-3xl"
             style={{
               background: '#FDFAF7',
               border: '1px solid #EDE4DA',
