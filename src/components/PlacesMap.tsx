@@ -170,6 +170,7 @@ export default function PlacesMap({ places, selectedId, flyTarget, onAdd, onSele
   function handleMapClick(lat: number, lng: number) {
     if (markerJustClicked.current) { markerJustClicked.current = false; return }
     if (addState) { setAddState(null); return }
+    if (selectedId) { onSelectPlace(null); return }
     setAddState({ lat, lng })
     setNewName(''); setNewNotes(''); setNewStatus('want-to-go'); setNewMeta({})
   }
