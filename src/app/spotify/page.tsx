@@ -280,14 +280,27 @@ function PlaylistBuilder({
           trackUris: queue.map(t => t.uri),
         }),
       })
-      const data = await res.json() as { url?: string; id?: string; error?: string; trackError?: string }
+      const data = await res.json() as { url?: string; id?: string; error?: string; token?: string; trackUris?: string[] }
       if (data.url && data.id) {
+        // Add tracks client-side to test whether server-side 403 is IP/region related
+        let trackError: string | null = null
+        if (data.token && data.trackUris?.length) {
+          const addRes = await fetch(`https://api.spotify.com/v1/playlists/${data.id}/tracks`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${data.token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uris: data.trackUris }),
+          })
+          if (!addRes.ok) {
+            const body = await addRes.text()
+            trackError = `Client-side add tracks ${addRes.status}: ${body}`
+          }
+        }
         setCreated({ name, url: data.url, id: data.id, tracks: [...queue] })
         setQueue([])
         setName('')
         setSearchQ('')
         setSearchResults([])
-        if (data.trackError) setCreateError(`Playlist created but tracks failed: ${data.trackError}`)
+        if (trackError) setCreateError(trackError)
       } else {
         setCreateError(data.error ?? 'Something went wrong — try again')
       }

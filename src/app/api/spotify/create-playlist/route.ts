@@ -32,33 +32,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Spotify returned no playlist ID' }, { status: 500 })
   }
 
-  // Step 2: verify we can read the playlist back
-  let trackError: string | undefined
-  if (trackUris?.length) {
-    const getRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if (!getRes.ok) {
-      const body = await getRes.text()
-      trackError = `GET playlist ${getRes.status}: ${body}`
-    } else {
-      // Step 3: add tracks via query string (alternative to body per Spotify docs)
-      const urisParam = trackUris.map(encodeURIComponent).join(',')
-      const addRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks?uris=${urisParam}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: '{}',
-      })
-      if (!addRes.ok) {
-        const body = await addRes.text()
-        trackError = `Add tracks ${addRes.status}: ${body}`
-      }
-    }
-  }
-
+  // Return the token so the client can add tracks directly to Spotify
+  // (server-side track-adding consistently 403s — testing client-side as workaround)
   return NextResponse.json({
     url: playlist.external_urls.spotify,
     id: playlist.id,
-    trackError,
+    token,
+    trackUris,
   })
 }
