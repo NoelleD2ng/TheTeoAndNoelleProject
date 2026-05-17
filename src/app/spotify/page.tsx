@@ -245,6 +245,7 @@ function PlaylistBuilder({
   const [searching, setSearching] = useState(false)
   const [queue, setQueue] = useState<SpotifyTrack[]>([])
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
   const [created, setCreated] = useState<CreatedPlaylist | null>(null)
   const [playingPlaylist, setPlayingPlaylist] = useState(false)
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -267,6 +268,7 @@ function PlaylistBuilder({
   async function handleCreate() {
     if (!name.trim() || queue.length === 0 || creating) return
     setCreating(true)
+    setCreateError(null)
     try {
       const res = await fetch('/api/spotify/create-playlist', {
         method: 'POST',
@@ -285,7 +287,11 @@ function PlaylistBuilder({
         setName('')
         setSearchQ('')
         setSearchResults([])
+      } else {
+        setCreateError(data.error ?? 'Something went wrong — try again')
       }
+    } catch {
+      setCreateError('Network error — check your connection')
     } finally {
       setCreating(false)
     }
@@ -420,6 +426,9 @@ function PlaylistBuilder({
               </div>
             ))}
           </div>
+        )}
+        {createError && (
+          <p className="text-xs text-red-500 px-1">{createError}</p>
         )}
         <div className="flex gap-2 items-center pt-1">
           {connected.length > 1 && (
