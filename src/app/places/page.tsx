@@ -583,7 +583,7 @@ export default function PlacesPage() {
           />
 
           <button
-            onClick={() => setFlyTarget({ lat: 39.5, lng: -98.35, ts: Date.now(), zoom: 4 })}
+            onClick={() => { selectPlace(null); setFlyTarget({ lat: 39.5, lng: -98.35, ts: Date.now(), zoom: 4 }) }}
             className="absolute bottom-6 right-4 z-[1000] flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:scale-105 active:scale-95"
             style={{ background: 'rgba(250,248,245,0.95)', border: '1px solid #E8DDD4', color: '#7A6155', boxShadow: '0 2px 12px rgba(44,26,14,0.15)', backdropFilter: 'blur(8px)' }}
           >
