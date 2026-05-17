@@ -81,36 +81,47 @@ function PlaceMarker({ place, isSelected, markerJustClickedRef, onSelectPlace, s
   const latestRef = useRef({ place, onSelectPlace, setAddState })
   latestRef.current = { place, onSelectPlace, setAddState }
 
+  // Re-runs whenever the icon changes (selection/status/memCount) so we always bind
+  // to the current _icon DOM element, bypassing Leaflet's event routing entirely.
+  const memCount = place.linked_memory_ids?.length ?? 0
   useEffect(() => {
     const marker = markerRef.current
     if (!marker) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const icon = (marker as any)._icon as HTMLElement | undefined
+    if (!icon) return
 
-    function select(e: L.LeafletMouseEvent) {
-      if (e.originalEvent) e.originalEvent.stopPropagation()
+    function onClick(e: MouseEvent) {
+      e.stopPropagation()
       markerJustClickedRef.current = true
       const { place, onSelectPlace, setAddState } = latestRef.current
       setAddState(null)
       onSelectPlace(place)
     }
 
-    function onCtxMenu(e: L.LeafletMouseEvent) {
-      if (e.originalEvent) e.originalEvent.preventDefault()
-      select(e)
+    function onContextMenu(e: MouseEvent) {
+      e.preventDefault()
+      e.stopPropagation()
+      markerJustClickedRef.current = true
+      const { place, onSelectPlace, setAddState } = latestRef.current
+      setAddState(null)
+      onSelectPlace(place)
     }
 
-    marker.on('click', select)
-    marker.on('contextmenu', onCtxMenu)
+    icon.addEventListener('click', onClick)
+    icon.addEventListener('contextmenu', onContextMenu)
     return () => {
-      marker.off('click', select)
-      marker.off('contextmenu', onCtxMenu)
+      icon.removeEventListener('click', onClick)
+      icon.removeEventListener('contextmenu', onContextMenu)
     }
-  }, [markerJustClickedRef])
+  // isSelected/place.status/memCount trigger icon change → new _icon element → re-bind
+  }, [isSelected, place.status, memCount, markerJustClickedRef])
 
   return (
     <Marker
       ref={markerRef}
       position={[place.lat, place.lng]}
-      icon={makeIcon(place.status, isSelected, place.linked_memory_ids?.length ?? 0)}
+      icon={makeIcon(place.status, isSelected, memCount)}
     />
   )
 }
