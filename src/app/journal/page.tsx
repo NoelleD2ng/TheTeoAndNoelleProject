@@ -118,7 +118,16 @@ export default function JournalPage() {
 
   return (
     <>
-      <div className="min-h-screen journal-paper-bg" style={{ paddingTop: 64 }}>
+      <style>{`
+        @keyframes modal-slide-in {
+          from { opacity: 0; transform: scale(0.93) translateY(22px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+      <div className="min-h-screen" style={{
+          paddingTop: 64,
+          background: 'radial-gradient(ellipse at 15% 10%, rgba(196,120,74,0.05) 0%, transparent 55%), radial-gradient(ellipse at 85% 90%, rgba(196,120,74,0.04) 0%, transparent 55%), #FDFAF7',
+        }}>
 
         {/* ── Page header ── */}
         <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-8 sm:pt-14 pb-6 flex items-end justify-between">
@@ -143,7 +152,7 @@ export default function JournalPage() {
         </div>
 
         {/* ── Welcome letter ── */}
-        <div className="max-w-2xl mx-auto px-4 sm:px-8 pb-10 sm:pb-14 journal-fade-in">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 pb-10 sm:pb-14">
           <div
             className="rounded-2xl sm:rounded-3xl px-6 py-8 sm:px-10 sm:py-10"
             style={{
@@ -244,9 +253,11 @@ export default function JournalPage() {
                   }}
                 >
                   <div
-                    className="journal-entry-card rounded-2xl p-5"
+                    className="rounded-2xl p-5"
                     style={{
                       transform: `rotate(${rot}deg)`,
+                      transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease',
+                      cursor: 'pointer',
                       background: love
                         ? 'linear-gradient(145deg, #FFF8F3, #FDF2EC)'
                         : 'linear-gradient(145deg, #ffffff, #FDFBF8)',
@@ -308,8 +319,9 @@ export default function JournalPage() {
           onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}
         >
           <div
-            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col journal-modal-in rounded-t-3xl"
+            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col rounded-t-3xl"
             style={{
+              animation: 'modal-slide-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both',
               background: '#FDFAF7',
               border: '1px solid #EDE4DA',
               maxHeight: '92vh',
@@ -398,8 +410,9 @@ export default function JournalPage() {
           onClick={e => { if (e.target === e.currentTarget) setComposing(false) }}
         >
           <div
-            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col journal-modal-in rounded-t-3xl"
+            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col rounded-t-3xl"
             style={{
+              animation: 'modal-slide-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both',
               background: '#FDFAF7',
               border: '1px solid #EDE4DA',
               maxHeight: '92vh',
