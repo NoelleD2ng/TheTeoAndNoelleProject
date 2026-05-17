@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   const createRes = await fetch('https://api.spotify.com/v1/me/playlists', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, description: description ?? '', public: false }),
+    body: JSON.stringify({ name, description: description ?? '', public: true }),
   })
   if (!createRes.ok) {
     const body = await createRes.text()
