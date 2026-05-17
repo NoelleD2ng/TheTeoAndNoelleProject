@@ -602,16 +602,13 @@ export default function PlacesPage() {
                   left: '50%',
                   top: '50%',
                   zIndex: isDragging ? 650 : 600,
-                  pointerEvents: photosPopped ? 'auto' : 'none',
+                  pointerEvents: 'none',
                   transform: photosPopped
                     ? `translate(calc(-50% + ${pos.dx + offset.x}px), calc(-50% + ${pos.dy + offset.y}px)) rotate(${pos.rot}deg)`
                     : `translate(-50%, -50%) scale(0) rotate(0deg)`,
                   opacity: photosPopped ? 1 : 0,
                   transition: isDragging ? 'none' : `transform 0.6s cubic-bezier(0.34,1.56,0.64,1) ${photosPopped ? pos.delay : 0}ms, opacity 0.35s ease ${photosPopped ? pos.delay : 0}ms`,
-                  cursor: isDragging ? 'grabbing' : 'grab',
                 }}
-                onMouseDown={e => handlePhotoDragStart(e, m.id)}
-                onClick={() => { if (!didDragRef.current) openMemoryCard() }}
               >
                 <div style={{ animation: photosPopped && !isDragging ? `${pos.floatAnim} 3.2s ease-in-out ${pos.delay + 650}ms infinite` : 'none' }}>
                   <div
@@ -626,7 +623,11 @@ export default function PlacesPage() {
                         : '0 10px 32px rgba(0,0,0,0.42), 0 3px 12px rgba(44,26,14,0.28)',
                       transform: isDragging ? 'scale(1.08)' : 'scale(1)',
                       transition: isDragging ? 'none' : 'transform 0.2s ease, box-shadow 0.2s ease',
+                      pointerEvents: photosPopped ? 'auto' : 'none',
+                      cursor: isDragging ? 'grabbing' : 'grab',
                     }}
+                    onMouseDown={e => handlePhotoDragStart(e, m.id)}
+                    onClick={() => { if (!didDragRef.current) openMemoryCard() }}
                   >
                     {m.image_url.toLowerCase().endsWith('.pdf') ? (
                       <div className="w-full h-full flex items-center justify-center" style={{ background: '#F5EFE8' }}>

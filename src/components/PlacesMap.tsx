@@ -77,29 +77,40 @@ type PlaceMarkerProps = {
 }
 
 function PlaceMarker({ place, isSelected, markerJustClickedRef, onSelectPlace, setAddState }: PlaceMarkerProps) {
-  const latest = useRef({ place, onSelectPlace, setAddState })
-  latest.current = { place, onSelectPlace, setAddState }
-  const [handlers] = useState(() => {
-    const select = (e: L.LeafletMouseEvent) => {
-      markerJustClickedRef.current = true
+  const markerRef = useRef<L.Marker | null>(null)
+  const latestRef = useRef({ place, onSelectPlace, setAddState })
+  latestRef.current = { place, onSelectPlace, setAddState }
+
+  useEffect(() => {
+    const marker = markerRef.current
+    if (!marker) return
+
+    function select(e: L.LeafletMouseEvent) {
       if (e.originalEvent) e.originalEvent.stopPropagation()
-      const { place, onSelectPlace, setAddState } = latest.current
+      markerJustClickedRef.current = true
+      const { place, onSelectPlace, setAddState } = latestRef.current
       setAddState(null)
       onSelectPlace(place)
     }
-    return {
-      click: select,
-      contextmenu: (e: L.LeafletMouseEvent) => {
-        if (e.originalEvent) e.originalEvent.preventDefault()
-        select(e)
-      },
+
+    function onCtxMenu(e: L.LeafletMouseEvent) {
+      if (e.originalEvent) e.originalEvent.preventDefault()
+      select(e)
     }
-  })
+
+    marker.on('click', select)
+    marker.on('contextmenu', onCtxMenu)
+    return () => {
+      marker.off('click', select)
+      marker.off('contextmenu', onCtxMenu)
+    }
+  }, [markerJustClickedRef])
+
   return (
     <Marker
+      ref={markerRef}
       position={[place.lat, place.lng]}
       icon={makeIcon(place.status, isSelected, place.linked_memory_ids?.length ?? 0)}
-      eventHandlers={handlers}
     />
   )
 }
