@@ -7,16 +7,16 @@ const MOODS = ['✨', '🥰', '😊', '😌', '🤔', '😔', '😤', '🥺']
 const serif = { fontFamily: 'Georgia, "Times New Roman", serif' }
 
 const CARD_CONFIG = [
-  { rot: -5,  anim: 'note-float-a', delay: 0   },
-  { rot:  4,  anim: 'note-float-b', delay: 220  },
-  { rot: -2,  anim: 'note-float-c', delay: 110  },
-  { rot:  7,  anim: 'note-float-a', delay: 330  },
-  { rot: -6,  anim: 'note-float-b', delay: 80   },
-  { rot:  3,  anim: 'note-float-c', delay: 180  },
-  { rot: -8,  anim: 'note-float-a', delay: 260  },
-  { rot:  5,  anim: 'note-float-b', delay: 140  },
-  { rot: -3,  anim: 'note-float-c', delay: 300  },
-  { rot:  6,  anim: 'note-float-a', delay: 50   },
+  { rot: -3,  anim: 'note-float-a', delay: 0   },
+  { rot:  2,  anim: 'note-float-b', delay: 220  },
+  { rot: -1,  anim: 'note-float-c', delay: 110  },
+  { rot:  3,  anim: 'note-float-a', delay: 330  },
+  { rot: -2,  anim: 'note-float-b', delay: 80   },
+  { rot:  1,  anim: 'note-float-c', delay: 180  },
+  { rot: -3,  anim: 'note-float-a', delay: 260  },
+  { rot:  2,  anim: 'note-float-b', delay: 140  },
+  { rot: -1,  anim: 'note-float-c', delay: 300  },
+  { rot:  3,  anim: 'note-float-a', delay: 50   },
 ]
 
 function formatLong(d: string) {
@@ -266,8 +266,14 @@ export default function JournalPage() {
         {/* ── Floating entry cards ── */}
         {!loading && entries.length > 0 && (
           <div
-            className="max-w-3xl mx-auto px-5 sm:px-10 pb-24 sm:pb-28"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.75rem' }}
+            className="max-w-3xl mx-auto pb-24 sm:pb-28"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: '2rem',
+              padding: '0 2rem 6rem',
+              overflow: 'visible',
+            }}
           >
             {entries.map((entry, i) => {
               const cfg = CARD_CONFIG[i % CARD_CONFIG.length]
@@ -289,7 +295,7 @@ export default function JournalPage() {
                         ? 'linear-gradient(145deg, #FFF8F3, #FDF2EC)'
                         : 'linear-gradient(145deg, #ffffff, #FDFBF8)',
                       border: `1px solid ${love ? 'rgba(196,120,74,0.22)' : '#EDE4DA'}`,
-                      boxShadow: '0 6px 24px rgba(44,26,14,0.1), 0 2px 6px rgba(44,26,14,0.06)',
+                      boxShadow: '0 8px 28px rgba(44,26,14,0.13), 0 2px 8px rgba(44,26,14,0.08)',
                     }}
                     onClick={() => setSelected(entry)}
                   >
@@ -309,11 +315,11 @@ export default function JournalPage() {
 
                     {/* preview */}
                     <p
-                      className="text-[11px] text-[#7A6155]/60 leading-relaxed"
+                      className="text-xs text-[#4A3020]/70 leading-relaxed"
                       style={{
                         ...serif,
                         display: '-webkit-box',
-                        WebkitLineClamp: 4,
+                        WebkitLineClamp: 5,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                       }}
@@ -322,12 +328,12 @@ export default function JournalPage() {
                     </p>
 
                     {/* read more hint */}
-                    <div className="flex items-center justify-between mt-3">
-                      <p className="text-[9px] text-[#C4784A]/40 tracking-wider uppercase">
+                    <div className="flex items-center justify-between mt-4 pt-3" style={{ borderTop: '1px solid rgba(232,221,212,0.6)' }}>
+                      <p className="text-[9px] text-[#C4784A]/60 tracking-wider uppercase font-medium">
                         {love ? 'read note →' : 'read entry →'}
                       </p>
                       {(entry.images?.length ?? 0) > 0 && (
-                        <span className="text-[9px] text-[#7A6155]/30">📷 {entry.images.length}</span>
+                        <span className="text-[9px] text-[#7A6155]/40">📷 {entry.images.length}</span>
                       )}
                     </div>
                   </div>
