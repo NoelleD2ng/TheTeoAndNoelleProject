@@ -10,10 +10,7 @@ function formatLong(d: string) {
   return new Date(d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 }
 function formatShort(d: string) {
-  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-function formatYear(d: string) {
-  return new Date(d).getFullYear()
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 export default function JournalPage() {
@@ -43,7 +40,6 @@ export default function JournalPage() {
   }, [composing])
 
   function startCompose() {
-    setSelected(null)
     setComposing(true)
     setNewType('journal')
     setNewTitle('')
@@ -80,367 +76,362 @@ export default function JournalPage() {
     <>
       <style>{`
         @keyframes fade-up {
-          from { opacity: 0; transform: translateY(12px); }
+          from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .entry-in { animation: fade-up 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
-        .compose-in { animation: fade-up 0.38s ease both; }
+        @keyframes modal-in {
+          from { opacity: 0; transform: scale(0.94) translateY(20px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .fade-in { animation: fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+        .modal-in { animation: modal-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both; }
         .paper-bg {
           background:
-            radial-gradient(ellipse at 20% 0%, rgba(196,120,74,0.04) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 100%, rgba(196,120,74,0.04) 0%, transparent 60%),
+            radial-gradient(ellipse at 15% 10%, rgba(196,120,74,0.05) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 90%, rgba(196,120,74,0.04) 0%, transparent 55%),
             #FDFAF7;
         }
       `}</style>
 
-      <div className="h-screen flex flex-col overflow-hidden" style={{ paddingTop: 64 }}>
+      <div className="min-h-screen paper-bg" style={{ paddingTop: 64 }}>
 
-        {/* Header */}
-        <div
-          className="shrink-0 px-8 py-4 flex items-center justify-between"
-          style={{
-            background: 'rgba(253,250,247,0.97)',
-            backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid #EDE4DA',
-            position: 'relative',
-            zIndex: 10,
-          }}
-        >
+        {/* ── Page header ── */}
+        <div className="max-w-2xl mx-auto px-8 pt-14 pb-6 flex items-end justify-between">
           <div>
-            <p className="text-[9px] tracking-[0.45em] uppercase text-[#C4784A]/50 leading-none mb-1">noelle & teo</p>
-            <h1 className="text-xl font-bold text-[#2C1A0E]" style={serif}>Our Journal</h1>
+            <p className="text-[9px] tracking-[0.55em] uppercase text-[#C4784A]/40 mb-2">noelle & teo</p>
+            <h1 className="text-3xl font-bold text-[#2C1A0E]" style={serif}>Our Journal</h1>
           </div>
-
           <button
             onClick={startCompose}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all hover:scale-105 active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 mb-1"
             style={{
               background: 'linear-gradient(135deg, #C4784A 0%, #D4896A 100%)',
               color: '#fff',
-              boxShadow: '0 4px 16px rgba(196,120,74,0.35)',
+              boxShadow: '0 4px 16px rgba(196,120,74,0.32)',
             }}
           >
-            <span style={{ fontSize: 16 }}>✦</span> Write
+            <span>✦</span> Write
           </button>
         </div>
 
-        <div className="flex flex-1 overflow-hidden">
-
-          {/* ── Sidebar ── */}
+        {/* ── Welcome letter ── */}
+        <div className="max-w-2xl mx-auto px-8 pb-14 fade-in">
           <div
-            className="w-64 shrink-0 flex flex-col overflow-hidden"
-            style={{ background: '#FAF7F4', borderRight: '1px solid #EDE4DA' }}
+            className="rounded-3xl px-10 py-10"
+            style={{
+              background: '#fff',
+              border: '1px solid #EDE4DA',
+              boxShadow: '0 8px 40px rgba(44,26,14,0.07), 0 2px 8px rgba(44,26,14,0.04)',
+            }}
           >
-            {/* Count pills */}
-            {!loading && entries.length > 0 && (
-              <div className="px-4 py-3 flex gap-2 shrink-0" style={{ borderBottom: '1px solid #EDE4DA' }}>
-                <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: '#F5EFE8', color: '#7A6155' }}>
-                  {entries.filter(e => e.type === 'journal').length} entries
-                </span>
-                <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: '#FDF0E8', color: '#C4784A' }}>
-                  {entries.filter(e => e.type === 'love-note').length} love notes
-                </span>
-              </div>
-            )}
+            <p className="text-[9px] tracking-[0.55em] uppercase text-[#C4784A]/40 mb-6">for teo, always</p>
 
-            <div className="flex-1 overflow-y-auto py-2 px-2">
-              {loading ? (
-                <div className="text-center py-12 text-[#AE9B8E] text-xs">loading...</div>
-              ) : entries.length === 0 ? (
-                <div className="text-center py-16 px-4">
-                  <p className="text-4xl mb-3" style={{ opacity: 0.2 }}>✦</p>
-                  <p className="text-xs text-[#7A6155]/35 leading-relaxed">Your story starts here.</p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-1">
-                  {entries.map(entry => {
-                    const love = isLove(entry)
-                    const active = selected?.id === entry.id && !composing
-                    return (
-                      <button
-                        key={entry.id}
-                        onClick={() => { setSelected(entry); setComposing(false) }}
-                        className="w-full text-left px-3 py-3 rounded-xl transition-all relative overflow-hidden"
-                        style={{
-                          background: active
-                            ? (love ? '#FDF0E8' : '#F5EFE8')
-                            : '#fff',
-                          border: `1px solid ${active ? (love ? '#E8C9B0' : '#DDD0C4') : '#EDE4DA'}`,
-                        }}
-                      >
-                        {/* left accent bar */}
-                        <div
-                          className="absolute left-0 top-0 bottom-0 w-0.5 rounded-full"
-                          style={{ background: love ? '#C4784A' : '#C8B5A8' }}
-                        />
-                        <div className="pl-2">
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            {love && <span className="text-[10px] text-[#C4784A]/70">♥</span>}
-                            {entry.mood && <span className="text-xs leading-none">{entry.mood}</span>}
-                            <span className="text-[10px] text-[#7A6155]/35 ml-auto">{formatShort(entry.created_at)}</span>
-                          </div>
-                          <p className="text-xs font-semibold text-[#2C1A0E] truncate">
-                            {entry.title ?? (love ? 'Love note' : 'Journal entry')}
-                          </p>
-                          <p
-                            className="text-[11px] text-[#7A6155]/50 mt-0.5 leading-relaxed"
-                            style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                          >
-                            {entry.content}
-                          </p>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
+            <h2 className="text-[1.75rem] font-bold text-[#2C1A0E] leading-snug mb-8" style={serif}>
+              When you need me,<br />read this.
+            </h2>
+
+            <div className="flex flex-col gap-5 text-[0.92rem] text-[#3A2214]/65 leading-[1.95]" style={serif}>
+              <p>
+                Before you read anything else in this journal, I want you to know why I'm making it.
+                I know there have been moments in our relationship where I've hurt your trust, made you overthink,
+                or made you feel smaller than you deserve to feel. I can't change the past, but I can choose how
+                I love you moving forward — intentionally, honestly, and consistently.
+              </p>
+
+              <p>That's why I'm making this for you.</p>
+
+              <p>
+                This isn't going to be a one-time thing that gets forgotten after a week. I want this to become
+                a routine for me. Something I continue adding to every day or every other day so there's something
+                new for you to come back to whenever you need it.
+              </p>
+
+              <p className="text-[#C4784A]/55 italic">I want these notes to grow with us.</p>
+
+              <div style={{ borderTop: '1px solid #EDE4DA', paddingTop: 20 }}>
+                <p>
+                  I'm going to fill these notes with real moments, real memories, and real details from our
+                  everyday life together — so it never feels generic or distant. I want you to be able to open
+                  to any page and remember specific nights, conversations, jokes, dates, little moments, or
+                  feelings we shared around the time I wrote it.
+                </p>
+              </div>
+
+              <p>
+                Maybe one page will be about how happy I felt after one of our late-night talks. Maybe another
+                will be about the way you held my hand in the car, or a small moment where you're holding my
+                hand and kiss it. Maybe another will be about a random moment that made me look at you and think,{' '}
+                <span className="text-[#2C1A0E]/80 italic">"I love him so much, he's so silly and makes me genuinely happy."</span>
+              </p>
+
+              <div
+                className="px-6 py-6 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(196,120,74,0.07) 0%, rgba(232,168,124,0.06) 100%)',
+                  border: '1px solid rgba(196,120,74,0.16)',
+                }}
+              >
+                <p>
+                  And most importantly, I want this journal to remind you of something I never want you to forget:
+                </p>
+                <p className="text-[1.05rem] font-semibold text-[#C4784A] mt-3 mb-3">
+                  You are deeply loved by me.
+                </p>
+                <p>
+                  Not conditionally. Not temporarily. Not only during easy moments.
+                  You are loved in the quiet days, the difficult days, the healing days,
+                  and all the in-between moments too.
+                </p>
+              </div>
+
+              <p>
+                So whenever you feel insecure, overwhelmed, doubtful, or distant from me — I want you to come
+                back here and let these pages remind you how important you are to my heart.
+              </p>
+
+              <p className="text-[#C4784A]/50 mt-2">With all my love, Noelle ♥</p>
             </div>
           </div>
+        </div>
 
-          {/* ── Main area ── */}
-          <div className="flex-1 overflow-y-auto paper-bg">
+        {/* ── Divider ── */}
+        <div className="max-w-2xl mx-auto px-8 flex items-center gap-4 mb-10">
+          <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
+          <span className="text-[#C4784A]/25 text-base">♥</span>
+          <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
+        </div>
 
-            {/* ── Compose ── */}
-            {composing && (
-              <div className="max-w-xl mx-auto px-8 py-12 compose-in">
-
-                {/* Type toggle */}
-                <div className="flex gap-1 p-1 rounded-2xl mb-10 w-fit" style={{ background: '#F0E8E0', border: '1px solid #E0D4C8' }}>
-                  {([
-                    { v: 'journal' as const, label: '✍ Entry' },
-                    { v: 'love-note' as const, label: '♥ Love Note' },
-                  ]).map(({ v, label }) => (
-                    <button
-                      key={v}
-                      onClick={() => setNewType(v)}
-                      className="px-5 py-2 rounded-xl text-xs font-semibold transition-all"
-                      style={{
-                        background: newType === v ? '#fff' : 'transparent',
-                        color: newType === v ? '#C4784A' : '#7A6155',
-                        boxShadow: newType === v ? '0 1px 6px rgba(44,26,14,0.1)' : 'none',
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Mood */}
-                <div className="flex gap-3 mb-8 flex-wrap">
-                  {MOODS.map(m => (
-                    <button
-                      key={m}
-                      onClick={() => setNewMood(newMood === m ? '' : m)}
-                      className="text-xl transition-all hover:scale-125 active:scale-110"
-                      style={{ opacity: newMood && newMood !== m ? 0.2 : 1 }}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Date */}
-                <p className="text-[10px] tracking-[0.4em] uppercase text-[#7A6155]/35 mb-5">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </p>
-
-                {/* Title */}
-                <input
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  placeholder={newType === 'love-note' ? 'A little title for Teo...' : 'Title...'}
-                  className="w-full bg-transparent border-none outline-none placeholder:text-[#C8B5A8]/60 mb-5 text-[1.6rem] font-bold text-[#2C1A0E]"
-                  style={serif}
-                />
-
-                {newType === 'love-note' && (
-                  <p className="text-sm text-[#C4784A]/40 mb-4 -mt-2" style={serif}>Dear Teo,</p>
-                )}
-
-                {/* Content */}
-                <textarea
-                  ref={textareaRef}
-                  value={newContent}
-                  onChange={e => setNewContent(e.target.value)}
-                  placeholder={newType === 'love-note' ? 'Tell him something wonderful...' : "What's on your mind..."}
-                  rows={18}
-                  className="w-full bg-transparent border-none outline-none resize-none text-[#3A2214]/75 leading-[1.9] text-[0.95rem] placeholder:text-[#C8B5A8]/45"
-                  style={serif}
-                />
-
-                <div
-                  className="flex items-center gap-3 mt-8 pt-6"
-                  style={{ borderTop: '1px solid #E8DDD4' }}
-                >
+        {/* ── Entry list ── */}
+        <div className="max-w-2xl mx-auto px-8 pb-20">
+          {loading ? (
+            <p className="text-center text-xs text-[#AE9B8E] py-8">loading...</p>
+          ) : entries.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-xs text-[#7A6155]/30">No entries yet — write the first one.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {entries.map((entry, i) => {
+                const love = isLove(entry)
+                return (
                   <button
-                    onClick={save}
-                    disabled={!newContent.trim() || saving}
-                    className="px-7 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
-                    style={{ background: '#C4784A', color: '#fff', boxShadow: '0 3px 12px rgba(196,120,74,0.3)' }}
+                    key={entry.id}
+                    onClick={() => setSelected(entry)}
+                    className="w-full text-left px-6 py-5 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99]"
+                    style={{
+                      background: '#fff',
+                      border: '1px solid #EDE4DA',
+                      boxShadow: '0 2px 12px rgba(44,26,14,0.05)',
+                      animation: `fade-up 0.4s cubic-bezier(0.22,1,0.36,1) ${i * 40}ms both`,
+                    }}
                   >
-                    {saving ? 'Saving...' : newType === 'love-note' ? 'Send with love ♥' : 'Save entry'}
+                    <div className="flex items-start gap-4">
+                      <div
+                        className="w-1 self-stretch rounded-full shrink-0 mt-0.5"
+                        style={{ background: love ? '#C4784A' : '#C8B5A8', minHeight: 40 }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {love && <span className="text-[10px] text-[#C4784A]/60 font-medium tracking-wider uppercase">Love note</span>}
+                          {entry.mood && <span className="text-sm leading-none">{entry.mood}</span>}
+                          <span className="text-[10px] text-[#7A6155]/35 ml-auto shrink-0">{formatShort(entry.created_at)}</span>
+                        </div>
+                        <p className="text-sm font-semibold text-[#2C1A0E] mb-1" style={serif}>
+                          {entry.title ?? (love ? 'Love note' : 'Journal entry')}
+                        </p>
+                        <p
+                          className="text-xs text-[#7A6155]/55 leading-relaxed"
+                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                        >
+                          {entry.content}
+                        </p>
+                      </div>
+                    </div>
                   </button>
-                  <button
-                    onClick={() => setComposing(false)}
-                    className="px-4 py-2.5 text-sm text-[#7A6155]/40 hover:text-[#7A6155] transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Entry reading modal ── */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
+          style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(12px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}
+        >
+          <div
+            className="w-full max-w-xl rounded-3xl overflow-hidden flex flex-col modal-in"
+            style={{
+              background: '#FDFAF7',
+              border: '1px solid #EDE4DA',
+              maxHeight: '88vh',
+              boxShadow: '0 40px 100px rgba(0,0,0,0.45)',
+            }}
+          >
+            {isLove(selected) && (
+              <div
+                className="px-8 py-5 shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(196,120,74,0.09), rgba(232,168,124,0.07))',
+                  borderBottom: '1px solid rgba(196,120,74,0.14)',
+                }}
+              >
+                <p className="text-[9px] tracking-[0.5em] uppercase text-[#C4784A]/55">a love note for teo ♥</p>
               </div>
             )}
 
-            {/* ── Reading view ── */}
-            {!composing && selected && (
-              <div className="max-w-xl mx-auto px-8 py-12 entry-in">
-
-                {/* Love note header decoration */}
-                {isLove(selected) && (
-                  <div
-                    className="mb-10 px-6 py-5 rounded-3xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(196,120,74,0.07) 0%, rgba(232,168,124,0.07) 100%)',
-                      border: '1px solid rgba(196,120,74,0.18)',
-                    }}
-                  >
-                    <p className="text-xs tracking-[0.45em] uppercase text-[#C4784A]/55 mb-1">a love note for teo</p>
-                    <p className="text-2xl text-[#C4784A]/25">♥</p>
-                  </div>
-                )}
-
-                {/* Mood + date */}
-                <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 overflow-y-auto px-8 py-8">
+              <div className="flex items-start justify-between gap-4 mb-6">
+                <div className="flex items-center gap-3">
                   {selected.mood && <span className="text-2xl">{selected.mood}</span>}
                   <div>
                     <p className="text-[10px] tracking-[0.4em] uppercase text-[#7A6155]/35">{formatLong(selected.created_at)}</p>
                     {!isLove(selected) && (
-                      <p className="text-[9px] tracking-wider uppercase text-[#C4784A]/40 mt-0.5">journal entry</p>
+                      <p className="text-[9px] tracking-wider uppercase text-[#7A6155]/25 mt-0.5">journal entry</p>
                     )}
                   </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => deleteEntry(selected.id)}
-                    className="ml-auto text-[11px] px-3 py-1.5 rounded-lg transition-colors hover:text-red-400"
+                    className="text-[11px] px-3 py-1.5 rounded-lg transition-colors hover:text-red-400"
                     style={{ color: 'rgba(248,113,113,0.4)', background: '#F5EFE8' }}
                   >
                     Delete
                   </button>
-                </div>
-
-                {/* Title */}
-                {selected.title && (
-                  <h2
-                    className="text-[2rem] font-bold text-[#2C1A0E] leading-tight mb-8"
-                    style={serif}
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="text-[#7A6155]/30 hover:text-[#7A6155]/70 text-2xl leading-none transition-colors"
                   >
-                    {selected.title}
-                  </h2>
-                )}
-
-                {isLove(selected) && (
-                  <p className="text-base text-[#C4784A]/50 mb-6" style={serif}>Dear Teo,</p>
-                )}
-
-                {/* Body */}
-                <p
-                  className="text-[#3A2214]/70 leading-[1.95] text-[0.95rem] whitespace-pre-wrap"
-                  style={serif}
-                >
-                  {selected.content}
-                </p>
-
-                {isLove(selected) && (
-                  <p className="text-base text-[#C4784A]/45 mt-8" style={serif}>With love, Noelle ♥</p>
-                )}
-
-                {/* Year stamp */}
-                <p className="text-[10px] tracking-[0.4em] uppercase text-[#7A6155]/20 mt-14">
-                  {formatYear(selected.created_at)}
-                </p>
+                    ×
+                  </button>
+                </div>
               </div>
-            )}
 
-            {/* ── Welcome letter ── */}
-            {!composing && !selected && (
-              <div className="max-w-xl mx-auto px-8 py-14 entry-in">
-
-                <p className="text-[9px] tracking-[0.55em] uppercase text-[#C4784A]/40 mb-8">for teo, always</p>
-
-                <h2 className="text-[1.9rem] font-bold text-[#2C1A0E] leading-snug mb-10" style={serif}>
-                  When you need me,<br />read this.
+              {selected.title && (
+                <h2 className="text-[1.8rem] font-bold text-[#2C1A0E] leading-tight mb-6" style={serif}>
+                  {selected.title}
                 </h2>
+              )}
 
-                <div className="flex flex-col gap-6 text-[0.93rem] text-[#3A2214]/65 leading-[1.95]" style={serif}>
-                  <p>
-                    Before you read anything else in this journal, I want you to know why I'm making it.
-                    I know there have been moments in our relationship where I've hurt your trust, made you overthink,
-                    or made you feel smaller than you deserve to feel. I can't change the past, but I can choose how
-                    I love you moving forward — intentionally, honestly, and consistently.
-                  </p>
+              {isLove(selected) && (
+                <p className="text-sm text-[#C4784A]/45 mb-5" style={serif}>Dear Teo,</p>
+              )}
 
-                  <p>That's why I'm making this for you.</p>
+              <p className="text-[0.93rem] text-[#3A2214]/70 leading-[1.95] whitespace-pre-wrap" style={serif}>
+                {selected.content}
+              </p>
 
-                  <p>
-                    This isn't going to be a one-time thing that gets forgotten after a week. I want this to become
-                    a routine for me. Something I continue adding to every day or every other day so there's something
-                    new for you to come back to whenever you need it.
-                  </p>
-
-                  <p className="text-[#C4784A]/60 italic">I want these notes to grow with us.</p>
-
-                  <div style={{ borderTop: '1px solid #E8DDD4', paddingTop: 24, marginTop: 4 }}>
-                    <p>
-                      I'm going to fill these notes with real moments, real memories, and real details from our
-                      everyday life together — so it never feels generic or distant. I want you to be able to open
-                      to any page and remember specific nights, conversations, jokes, dates, little moments, or
-                      feelings we shared around the time I wrote it.
-                    </p>
-                  </div>
-
-                  <p>
-                    Maybe one page will be about how happy I felt after one of our late-night talks. Maybe another
-                    will be about the way you held my hand in the car, or a small moment where you're holding my hand
-                    and kiss it. Maybe another will be about a random moment that made me look at you and think,
-                    <span className="text-[#2C1A0E]/80 italic"> "I love him so much, he's so silly and makes me genuinely happy."</span>
-                  </p>
-
-                  <div
-                    className="px-6 py-6 rounded-2xl my-2"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(196,120,74,0.07) 0%, rgba(232,168,124,0.06) 100%)',
-                      border: '1px solid rgba(196,120,74,0.15)',
-                    }}
-                  >
-                    <p className="text-[#2C1A0E]/75">
-                      And most importantly, I want this journal to remind you of something I never want you to forget:
-                    </p>
-                    <p className="text-[1.05rem] font-semibold text-[#C4784A] mt-3 mb-3">
-                      You are deeply loved by me.
-                    </p>
-                    <p>
-                      Not conditionally. Not temporarily. Not only during easy moments.
-                      You are loved in the quiet days, the difficult days, the healing days,
-                      and all the in-between moments too.
-                    </p>
-                  </div>
-
-                  <p>
-                    So whenever you feel insecure, overwhelmed, doubtful, or distant from me — I want you to come
-                    back here and let these pages remind you how important you are to my heart.
-                  </p>
-
-                  <p className="text-[#C4784A]/55 mt-4">With all my love, Noelle ♥</p>
-                </div>
-
-                <div className="mt-16 flex items-center gap-3">
-                  <div className="flex-1 h-px" style={{ background: '#E8DDD4' }} />
-                  <span className="text-[#C4784A]/20 text-lg">♥</span>
-                  <div className="flex-1 h-px" style={{ background: '#E8DDD4' }} />
-                </div>
-              </div>
-            )}
+              {isLove(selected) && (
+                <p className="text-sm text-[#C4784A]/40 mt-8" style={serif}>With love, Noelle ♥</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* ── Compose modal ── */}
+      {composing && (
+        <div
+          className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
+          style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(12px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setComposing(false) }}
+        >
+          <div
+            className="w-full max-w-xl rounded-3xl overflow-hidden flex flex-col modal-in"
+            style={{
+              background: '#FDFAF7',
+              border: '1px solid #EDE4DA',
+              maxHeight: '90vh',
+              boxShadow: '0 40px 100px rgba(0,0,0,0.45)',
+            }}
+          >
+            <div className="px-8 pt-8 pb-6 shrink-0" style={{ borderBottom: '1px solid #EDE4DA' }}>
+              {/* Type toggle */}
+              <div className="flex gap-1 p-1 rounded-2xl w-fit mb-6" style={{ background: '#F0E8E0', border: '1px solid #E0D4C8' }}>
+                {([
+                  { v: 'journal' as const, label: '✍ Entry' },
+                  { v: 'love-note' as const, label: '♥ Love Note' },
+                ]).map(({ v, label }) => (
+                  <button
+                    key={v}
+                    onClick={() => setNewType(v)}
+                    className="px-5 py-2 rounded-xl text-xs font-semibold transition-all"
+                    style={{
+                      background: newType === v ? '#fff' : 'transparent',
+                      color: newType === v ? '#C4784A' : '#7A6155',
+                      boxShadow: newType === v ? '0 1px 6px rgba(44,26,14,0.1)' : 'none',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-3 flex-wrap">
+                {MOODS.map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setNewMood(newMood === m ? '' : m)}
+                    className="text-lg transition-all hover:scale-125 active:scale-110"
+                    style={{ opacity: newMood && newMood !== m ? 0.2 : 1 }}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-8 py-6">
+              <p className="text-[10px] tracking-[0.4em] uppercase text-[#7A6155]/30 mb-4">
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+
+              <input
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                placeholder={newType === 'love-note' ? 'A little title for Teo...' : 'Title...'}
+                className="w-full bg-transparent border-none outline-none placeholder:text-[#C8B5A8]/50 mb-4 text-[1.5rem] font-bold text-[#2C1A0E]"
+                style={serif}
+              />
+
+              {newType === 'love-note' && (
+                <p className="text-sm text-[#C4784A]/40 mb-3" style={serif}>Dear Teo,</p>
+              )}
+
+              <textarea
+                ref={textareaRef}
+                value={newContent}
+                onChange={e => setNewContent(e.target.value)}
+                placeholder={newType === 'love-note' ? 'Tell him something wonderful...' : "What's on your mind..."}
+                rows={12}
+                className="w-full bg-transparent border-none outline-none resize-none text-[#3A2214]/75 leading-[1.9] text-[0.93rem] placeholder:text-[#C8B5A8]/40"
+                style={serif}
+              />
+            </div>
+
+            <div className="px-8 py-5 shrink-0 flex items-center gap-3" style={{ borderTop: '1px solid #EDE4DA' }}>
+              <button
+                onClick={save}
+                disabled={!newContent.trim() || saving}
+                className="px-7 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
+                style={{ background: '#C4784A', color: '#fff', boxShadow: '0 3px 12px rgba(196,120,74,0.3)' }}
+              >
+                {saving ? 'Saving...' : newType === 'love-note' ? 'Send with love ♥' : 'Save entry'}
+              </button>
+              <button
+                onClick={() => setComposing(false)}
+                className="px-4 py-2.5 text-sm text-[#7A6155]/40 hover:text-[#7A6155] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
