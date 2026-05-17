@@ -6,6 +6,19 @@ import { supabase, type JournalEntry } from '@/lib/supabase'
 const MOODS = ['✨', '🥰', '😊', '😌', '🤔', '😔', '😤', '🥺']
 const serif = { fontFamily: 'Georgia, "Times New Roman", serif' }
 
+const CARD_CONFIG = [
+  { rot: -5,  anim: 'note-float-a', delay: 0   },
+  { rot:  4,  anim: 'note-float-b', delay: 220  },
+  { rot: -2,  anim: 'note-float-c', delay: 110  },
+  { rot:  7,  anim: 'note-float-a', delay: 330  },
+  { rot: -6,  anim: 'note-float-b', delay: 80   },
+  { rot:  3,  anim: 'note-float-c', delay: 180  },
+  { rot: -8,  anim: 'note-float-a', delay: 260  },
+  { rot:  5,  anim: 'note-float-b', delay: 140  },
+  { rot: -3,  anim: 'note-float-c', delay: 300  },
+  { rot:  6,  anim: 'note-float-a', delay: 50   },
+]
+
 function formatLong(d: string) {
   return new Date(d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 }
@@ -75,21 +88,46 @@ export default function JournalPage() {
   return (
     <>
       <style>{`
+        @keyframes note-float-a {
+          0%, 100% { transform: translateY(0px);   }
+          50%       { transform: translateY(-9px);  }
+        }
+        @keyframes note-float-b {
+          0%, 100% { transform: translateY(0px);   }
+          35%       { transform: translateY(-7px);  }
+          70%       { transform: translateY(-12px); }
+        }
+        @keyframes note-float-c {
+          0%, 100% { transform: translateY(0px);   }
+          25%       { transform: translateY(-11px); }
+          75%       { transform: translateY(-5px);  }
+        }
         @keyframes fade-up {
-          from { opacity: 0; transform: translateY(16px); }
+          from { opacity: 0; transform: translateY(18px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes modal-in {
-          from { opacity: 0; transform: scale(0.94) translateY(20px); }
+          from { opacity: 0; transform: scale(0.93) translateY(22px); }
           to   { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .fade-in { animation: fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+        .fade-in  { animation: fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
         .modal-in { animation: modal-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both; }
         .paper-bg {
           background:
             radial-gradient(ellipse at 15% 10%, rgba(196,120,74,0.05) 0%, transparent 55%),
             radial-gradient(ellipse at 85% 90%, rgba(196,120,74,0.04) 0%, transparent 55%),
             #FDFAF7;
+        }
+        .entry-card {
+          transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
+                      box-shadow 0.25s ease;
+          cursor: pointer;
+        }
+        .entry-card:hover {
+          transform: rotate(0deg) scale(1.04) !important;
+          box-shadow: 0 16px 48px rgba(44,26,14,0.18) !important;
+          z-index: 10;
+          position: relative;
         }
       `}</style>
 
@@ -103,12 +141,15 @@ export default function JournalPage() {
           </div>
           <button
             onClick={startCompose}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 mb-1"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold mb-1"
             style={{
               background: 'linear-gradient(135deg, #C4784A 0%, #D4896A 100%)',
               color: '#fff',
               boxShadow: '0 4px 16px rgba(196,120,74,0.32)',
+              transition: 'transform 0.2s ease',
             }}
+            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
           >
             <span>✦</span> Write
           </button>
@@ -137,17 +178,13 @@ export default function JournalPage() {
                 or made you feel smaller than you deserve to feel. I can't change the past, but I can choose how
                 I love you moving forward — intentionally, honestly, and consistently.
               </p>
-
               <p>That's why I'm making this for you.</p>
-
               <p>
                 This isn't going to be a one-time thing that gets forgotten after a week. I want this to become
                 a routine for me. Something I continue adding to every day or every other day so there's something
                 new for you to come back to whenever you need it.
               </p>
-
               <p className="text-[#C4784A]/55 italic">I want these notes to grow with us.</p>
-
               <div style={{ borderTop: '1px solid #EDE4DA', paddingTop: 20 }}>
                 <p>
                   I'm going to fill these notes with real moments, real memories, and real details from our
@@ -156,14 +193,12 @@ export default function JournalPage() {
                   feelings we shared around the time I wrote it.
                 </p>
               </div>
-
               <p>
                 Maybe one page will be about how happy I felt after one of our late-night talks. Maybe another
                 will be about the way you held my hand in the car, or a small moment where you're holding my
                 hand and kiss it. Maybe another will be about a random moment that made me look at you and think,{' '}
                 <span className="text-[#2C1A0E]/80 italic">"I love him so much, he's so silly and makes me genuinely happy."</span>
               </p>
-
               <div
                 className="px-6 py-6 rounded-2xl"
                 style={{
@@ -171,95 +206,105 @@ export default function JournalPage() {
                   border: '1px solid rgba(196,120,74,0.16)',
                 }}
               >
-                <p>
-                  And most importantly, I want this journal to remind you of something I never want you to forget:
-                </p>
-                <p className="text-[1.05rem] font-semibold text-[#C4784A] mt-3 mb-3">
-                  You are deeply loved by me.
-                </p>
+                <p>And most importantly, I want this journal to remind you of something I never want you to forget:</p>
+                <p className="text-[1.05rem] font-semibold text-[#C4784A] mt-3 mb-3">You are deeply loved by me.</p>
                 <p>
                   Not conditionally. Not temporarily. Not only during easy moments.
                   You are loved in the quiet days, the difficult days, the healing days,
                   and all the in-between moments too.
                 </p>
               </div>
-
               <p>
                 So whenever you feel insecure, overwhelmed, doubtful, or distant from me — I want you to come
                 back here and let these pages remind you how important you are to my heart.
               </p>
-
               <p className="text-[#C4784A]/50 mt-2">With all my love, Noelle ♥</p>
             </div>
           </div>
         </div>
 
         {/* ── Divider ── */}
-        <div className="max-w-2xl mx-auto px-8 flex items-center gap-4 mb-10">
-          <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
-          <span className="text-[#C4784A]/25 text-base">♥</span>
-          <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
-        </div>
+        {entries.length > 0 && (
+          <div className="max-w-2xl mx-auto px-8 flex items-center gap-4 mb-16">
+            <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
+            <span className="text-[#C4784A]/25 text-base">♥</span>
+            <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
+          </div>
+        )}
 
-        {/* ── Entry list ── */}
-        <div className="max-w-2xl mx-auto px-8 pb-20">
-          {loading ? (
-            <p className="text-center text-xs text-[#AE9B8E] py-8">loading...</p>
-          ) : entries.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-xs text-[#7A6155]/30">No entries yet — write the first one.</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {entries.map((entry, i) => {
-                const love = isLove(entry)
-                return (
-                  <button
-                    key={entry.id}
-                    onClick={() => setSelected(entry)}
-                    className="w-full text-left px-6 py-5 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99]"
+        {/* ── Floating entry cards ── */}
+        {!loading && entries.length > 0 && (
+          <div
+            className="max-w-3xl mx-auto px-10 pb-28"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '2.5rem' }}
+          >
+            {entries.map((entry, i) => {
+              const cfg = CARD_CONFIG[i % CARD_CONFIG.length]
+              const love = isLove(entry)
+              return (
+                <div
+                  key={entry.id}
+                  style={{
+                    animation: `${cfg.anim} ${3.4 + (i % 3) * 0.4}s ease-in-out ${cfg.delay}ms infinite`,
+                  }}
+                >
+                  <div
+                    className="entry-card rounded-2xl p-5"
                     style={{
-                      background: '#fff',
-                      border: '1px solid #EDE4DA',
-                      boxShadow: '0 2px 12px rgba(44,26,14,0.05)',
-                      animation: `fade-up 0.4s cubic-bezier(0.22,1,0.36,1) ${i * 40}ms both`,
+                      transform: `rotate(${cfg.rot}deg)`,
+                      background: love
+                        ? 'linear-gradient(145deg, #FFF8F3, #FDF2EC)'
+                        : 'linear-gradient(145deg, #ffffff, #FDFBF8)',
+                      border: `1px solid ${love ? 'rgba(196,120,74,0.22)' : '#EDE4DA'}`,
+                      boxShadow: '0 6px 24px rgba(44,26,14,0.1), 0 2px 6px rgba(44,26,14,0.06)',
                     }}
+                    onClick={() => setSelected(entry)}
                   >
-                    <div className="flex items-start gap-4">
-                      <div
-                        className="w-1 self-stretch rounded-full shrink-0 mt-0.5"
-                        style={{ background: love ? '#C4784A' : '#C8B5A8', minHeight: 40 }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          {love && <span className="text-[10px] text-[#C4784A]/60 font-medium tracking-wider uppercase">Love note</span>}
-                          {entry.mood && <span className="text-sm leading-none">{entry.mood}</span>}
-                          <span className="text-[10px] text-[#7A6155]/35 ml-auto shrink-0">{formatShort(entry.created_at)}</span>
-                        </div>
-                        <p className="text-sm font-semibold text-[#2C1A0E] mb-1" style={serif}>
-                          {entry.title ?? (love ? 'Love note' : 'Journal entry')}
-                        </p>
-                        <p
-                          className="text-xs text-[#7A6155]/55 leading-relaxed"
-                          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                        >
-                          {entry.content}
-                        </p>
+                    {/* top row */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-1.5">
+                        {love && <span className="text-[#C4784A]/60 text-xs">♥</span>}
+                        {entry.mood && <span className="text-sm leading-none">{entry.mood}</span>}
                       </div>
+                      <span className="text-[9px] text-[#7A6155]/35 tracking-wide">{formatShort(entry.created_at)}</span>
                     </div>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
+
+                    {/* title */}
+                    <p className="text-sm font-bold text-[#2C1A0E] mb-2 leading-snug" style={serif}>
+                      {entry.title ?? (love ? 'Love note' : 'Journal entry')}
+                    </p>
+
+                    {/* preview */}
+                    <p
+                      className="text-[11px] text-[#7A6155]/60 leading-relaxed"
+                      style={{
+                        ...serif,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {entry.content}
+                    </p>
+
+                    {/* read more hint */}
+                    <p className="text-[9px] text-[#C4784A]/40 mt-3 tracking-wider uppercase">
+                      {love ? 'read note →' : 'read entry →'}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── Entry reading modal ── */}
       {selected && (
         <div
           className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
-          style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(12px)' }}
+          style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(14px)' }}
           onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}
         >
           <div
@@ -305,9 +350,7 @@ export default function JournalPage() {
                   <button
                     onClick={() => setSelected(null)}
                     className="text-[#7A6155]/30 hover:text-[#7A6155]/70 text-2xl leading-none transition-colors"
-                  >
-                    ×
-                  </button>
+                  >×</button>
                 </div>
               </div>
 
@@ -337,7 +380,7 @@ export default function JournalPage() {
       {composing && (
         <div
           className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
-          style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(12px)' }}
+          style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(14px)' }}
           onClick={e => { if (e.target === e.currentTarget) setComposing(false) }}
         >
           <div
@@ -349,9 +392,8 @@ export default function JournalPage() {
               boxShadow: '0 40px 100px rgba(0,0,0,0.45)',
             }}
           >
-            <div className="px-8 pt-8 pb-6 shrink-0" style={{ borderBottom: '1px solid #EDE4DA' }}>
-              {/* Type toggle */}
-              <div className="flex gap-1 p-1 rounded-2xl w-fit mb-6" style={{ background: '#F0E8E0', border: '1px solid #E0D4C8' }}>
+            <div className="px-8 pt-8 pb-5 shrink-0" style={{ borderBottom: '1px solid #EDE4DA' }}>
+              <div className="flex gap-1 p-1 rounded-2xl w-fit mb-5" style={{ background: '#F0E8E0', border: '1px solid #E0D4C8' }}>
                 {([
                   { v: 'journal' as const, label: '✍ Entry' },
                   { v: 'love-note' as const, label: '♥ Love Note' },
@@ -370,7 +412,6 @@ export default function JournalPage() {
                   </button>
                 ))}
               </div>
-
               <div className="flex gap-3 flex-wrap">
                 {MOODS.map(m => (
                   <button
@@ -389,7 +430,6 @@ export default function JournalPage() {
               <p className="text-[10px] tracking-[0.4em] uppercase text-[#7A6155]/30 mb-4">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
-
               <input
                 value={newTitle}
                 onChange={e => setNewTitle(e.target.value)}
@@ -397,11 +437,9 @@ export default function JournalPage() {
                 className="w-full bg-transparent border-none outline-none placeholder:text-[#C8B5A8]/50 mb-4 text-[1.5rem] font-bold text-[#2C1A0E]"
                 style={serif}
               />
-
               {newType === 'love-note' && (
                 <p className="text-sm text-[#C4784A]/40 mb-3" style={serif}>Dear Teo,</p>
               )}
-
               <textarea
                 ref={textareaRef}
                 value={newContent}
@@ -417,8 +455,15 @@ export default function JournalPage() {
               <button
                 onClick={save}
                 disabled={!newContent.trim() || saving}
-                className="px-7 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105 active:scale-95 disabled:opacity-40"
-                style={{ background: '#C4784A', color: '#fff', boxShadow: '0 3px 12px rgba(196,120,74,0.3)' }}
+                className="px-7 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
+                style={{
+                  background: '#C4784A',
+                  color: '#fff',
+                  boxShadow: '0 3px 12px rgba(196,120,74,0.3)',
+                  transition: 'transform 0.2s ease',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
               >
                 {saving ? 'Saving...' : newType === 'love-note' ? 'Send with love ♥' : 'Save entry'}
               </button>
