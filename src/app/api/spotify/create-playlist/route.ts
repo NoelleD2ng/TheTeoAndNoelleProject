@@ -32,17 +32,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Spotify returned no playlist ID' }, { status: 500 })
   }
 
-  // Step 2: add tracks
+  // Step 2: verify we can read the playlist back
   let trackError: string | undefined
   if (trackUris?.length) {
-    const addRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uris: trackUris }),
+    const getRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
-    if (!addRes.ok) {
-      const body = await addRes.text()
-      trackError = `Add tracks ${addRes.status}: ${body} | playlist=${playlist.id} | uris=${JSON.stringify(trackUris)}`
+    if (!getRes.ok) {
+      const body = await getRes.text()
+      trackError = `GET playlist ${getRes.status}: ${body}`
+    } else {
+      // Step 3: add tracks
+      const addRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uris: trackUris }),
+      })
+      if (!addRes.ok) {
+        const body = await addRes.text()
+        trackError = `Add tracks ${addRes.status}: ${body}`
+      }
     }
   }
 
