@@ -1,15 +1,15 @@
 import Link from 'next/link'
-import { Camera, Star, Coffee, Calendar, CheckSquare, MapPin, Code2, Sparkles } from 'lucide-react'
+import { Camera, Star, Coffee, Radio, CheckSquare, MapPin, Code2, BookOpen } from 'lucide-react'
 
 const sections = [
   { href: '/memories',    label: 'Memories',    icon: Camera,      desc: 'photos & moments' },
   { href: '/bucket-list', label: 'Bucket List', icon: Star,        desc: 'dreams together' },
   { href: '/date-ideas',  label: 'Date Ideas',  icon: Coffee,      desc: 'things to try' },
-  { href: '/plans',       label: 'Plans',       icon: Calendar,    desc: "what's coming up" },
+  { href: '/journal',     label: 'Journal',     icon: BookOpen,    desc: 'notes & love letters' },
   { href: '/todos',       label: 'To-Do',       icon: CheckSquare, desc: 'things to get done' },
   { href: '/places',      label: 'Places',      icon: MapPin,      desc: "where we've been" },
   { href: '/projects',    label: 'Projects',    icon: Code2,       desc: 'building together' },
-  { href: '/fun-facts',   label: 'Fun Facts',   icon: Sparkles,    desc: 'little things about us' },
+  { href: '/currently',   label: 'Currently',   icon: Radio,       desc: "what we're into" },
 ]
 
 export default function OurStoryPage() {
