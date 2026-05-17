@@ -37,6 +37,7 @@ export default function JournalPage() {
   const [newContent, setNewContent] = useState('')
   const [newMood, setNewMood] = useState('')
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -45,7 +46,10 @@ export default function JournalPage() {
       .from('journal_entries')
       .select('*')
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setEntries(data ?? []); setLoading(false) })
+      .then(({ data, error }) => {
+        if (!error) setEntries(data ?? [])
+        setLoading(false)
+      })
   }, [])
 
   useEffect(() => {
@@ -63,12 +67,18 @@ export default function JournalPage() {
   async function save() {
     if (!newContent.trim() || saving) return
     setSaving(true)
-    const { data } = await supabase.from('journal_entries').insert({
+    setSaveError(null)
+    const { data, error } = await supabase.from('journal_entries').insert({
       type: newType,
       title: newTitle.trim() || null,
       content: newContent.trim(),
       mood: newMood || null,
     }).select().single()
+    if (error) {
+      setSaveError('Could not save — make sure the journal_entries table exists in Supabase.')
+      setSaving(false)
+      return
+    }
     if (data) {
       setEntries(prev => [data, ...prev])
       setSelected(data)
@@ -451,7 +461,11 @@ export default function JournalPage() {
               />
             </div>
 
-            <div className="px-8 py-5 shrink-0 flex items-center gap-3" style={{ borderTop: '1px solid #EDE4DA' }}>
+            <div className="px-8 py-5 shrink-0 flex flex-col gap-3" style={{ borderTop: '1px solid #EDE4DA' }}>
+              {saveError && (
+                <p className="text-xs text-red-400/80 px-1">{saveError}</p>
+              )}
+              <div className="flex items-center gap-3">
               <button
                 onClick={save}
                 disabled={!newContent.trim() || saving}
@@ -473,6 +487,7 @@ export default function JournalPage() {
               >
                 Cancel
               </button>
+              </div>
             </div>
           </div>
         </div>
