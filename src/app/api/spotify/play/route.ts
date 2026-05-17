@@ -13,6 +13,10 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid user' }, { status: 400 })
   }
 
+  if (!deviceId) {
+    return NextResponse.json({ error: 'No active player — wait for the player to connect, then try again' }, { status: 400 })
+  }
+
   const body = contextUri
     ? { context_uri: contextUri }
     : uris?.length

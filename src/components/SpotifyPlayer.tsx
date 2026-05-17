@@ -100,6 +100,18 @@ export default function SpotifyPlayer({ user, color, onDeviceReady }: Props) {
 
       player.addListener('not_ready', () => setStatus('loading'))
 
+      // @ts-expect-error – SDK event not in our type declarations
+      player.addListener('authentication_error', ({ message }: { message: string }) => {
+        setStatus('error')
+        setErrorMsg(`Spotify auth failed: ${message}. Disconnect and reconnect your account.`)
+      })
+
+      // @ts-expect-error – SDK event not in our type declarations
+      player.addListener('account_error', ({ message }: { message: string }) => {
+        setStatus('error')
+        setErrorMsg(`Account error: ${message} — Spotify Premium is required for in-browser playback.`)
+      })
+
       player.addListener('player_state_changed', state => {
         if (!state) return
         const t = state.track_window.current_track
