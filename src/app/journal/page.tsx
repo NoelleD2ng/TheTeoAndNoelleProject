@@ -165,14 +165,14 @@ export default function JournalPage() {
       <div className="min-h-screen paper-bg" style={{ paddingTop: 64 }}>
 
         {/* ── Page header ── */}
-        <div className="max-w-2xl mx-auto px-8 pt-14 pb-6 flex items-end justify-between">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 pt-8 sm:pt-14 pb-6 flex items-end justify-between">
           <div>
             <p className="text-[9px] tracking-[0.55em] uppercase text-[#C4784A]/40 mb-2">noelle & teo</p>
-            <h1 className="text-3xl font-bold text-[#2C1A0E]" style={serif}>Our Journal</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#2C1A0E]" style={serif}>Our Journal</h1>
           </div>
           <button
             onClick={startCompose}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold mb-1"
+            className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl text-sm font-semibold mb-1"
             style={{
               background: 'linear-gradient(135deg, #C4784A 0%, #D4896A 100%)',
               color: '#fff',
@@ -187,9 +187,9 @@ export default function JournalPage() {
         </div>
 
         {/* ── Welcome letter ── */}
-        <div className="max-w-2xl mx-auto px-8 pb-14 fade-in">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 pb-10 sm:pb-14 fade-in">
           <div
-            className="rounded-3xl px-10 py-10"
+            className="rounded-2xl sm:rounded-3xl px-6 py-8 sm:px-10 sm:py-10"
             style={{
               background: '#fff',
               border: '1px solid #EDE4DA',
@@ -198,7 +198,7 @@ export default function JournalPage() {
           >
             <p className="text-[9px] tracking-[0.55em] uppercase text-[#C4784A]/40 mb-6">for teo, always</p>
 
-            <h2 className="text-[1.75rem] font-bold text-[#2C1A0E] leading-snug mb-8" style={serif}>
+            <h2 className="text-[1.4rem] sm:text-[1.75rem] font-bold text-[#2C1A0E] leading-snug mb-8" style={serif}>
               When you need me,<br />read this.
             </h2>
 
@@ -256,7 +256,7 @@ export default function JournalPage() {
 
         {/* ── Divider ── */}
         {entries.length > 0 && (
-          <div className="max-w-2xl mx-auto px-8 flex items-center gap-4 mb-16">
+          <div className="max-w-2xl mx-auto px-4 sm:px-8 flex items-center gap-4 mb-10 sm:mb-16">
             <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
             <span className="text-[#C4784A]/25 text-base">♥</span>
             <div className="flex-1 h-px" style={{ background: '#EDE4DA' }} />
@@ -266,12 +266,14 @@ export default function JournalPage() {
         {/* ── Floating entry cards ── */}
         {!loading && entries.length > 0 && (
           <div
-            className="max-w-3xl mx-auto px-10 pb-28"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '2.5rem' }}
+            className="max-w-3xl mx-auto px-5 sm:px-10 pb-24 sm:pb-28"
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.75rem' }}
           >
             {entries.map((entry, i) => {
               const cfg = CARD_CONFIG[i % CARD_CONFIG.length]
               const love = isLove(entry)
+              // reduce rotation on small screens via a smaller multiplier
+              const rot = cfg.rot
               return (
                 <div
                   key={entry.id}
@@ -282,7 +284,7 @@ export default function JournalPage() {
                   <div
                     className="entry-card rounded-2xl p-5"
                     style={{
-                      transform: `rotate(${cfg.rot}deg)`,
+                      transform: `rotate(${rot}deg)`,
                       background: love
                         ? 'linear-gradient(145deg, #FFF8F3, #FDF2EC)'
                         : 'linear-gradient(145deg, #ffffff, #FDFBF8)',
@@ -339,22 +341,22 @@ export default function JournalPage() {
       {/* ── Entry reading modal ── */}
       {selected && (
         <div
-          className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
+          className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-6"
           style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(14px)' }}
           onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}
         >
           <div
-            className="w-full max-w-xl rounded-3xl overflow-hidden flex flex-col modal-in"
+            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col modal-in rounded-t-3xl"
             style={{
               background: '#FDFAF7',
               border: '1px solid #EDE4DA',
-              maxHeight: '88vh',
+              maxHeight: '92vh',
               boxShadow: '0 40px 100px rgba(0,0,0,0.45)',
             }}
           >
             {isLove(selected) && (
               <div
-                className="px-8 py-5 shrink-0"
+                className="px-5 sm:px-8 py-4 sm:py-5 shrink-0"
                 style={{
                   background: 'linear-gradient(135deg, rgba(196,120,74,0.09), rgba(232,168,124,0.07))',
                   borderBottom: '1px solid rgba(196,120,74,0.14)',
@@ -364,7 +366,7 @@ export default function JournalPage() {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto px-8 py-8">
+            <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-6 sm:py-8">
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
                   {selected.mood && <span className="text-2xl">{selected.mood}</span>}
@@ -429,20 +431,20 @@ export default function JournalPage() {
       {/* ── Compose modal ── */}
       {composing && (
         <div
-          className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
+          className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center p-0 sm:p-6"
           style={{ background: 'rgba(10,6,3,0.72)', backdropFilter: 'blur(14px)' }}
           onClick={e => { if (e.target === e.currentTarget) setComposing(false) }}
         >
           <div
-            className="w-full max-w-xl rounded-3xl overflow-hidden flex flex-col modal-in"
+            className="w-full max-w-xl sm:rounded-3xl overflow-hidden flex flex-col modal-in rounded-t-3xl"
             style={{
               background: '#FDFAF7',
               border: '1px solid #EDE4DA',
-              maxHeight: '90vh',
+              maxHeight: '92vh',
               boxShadow: '0 40px 100px rgba(0,0,0,0.45)',
             }}
           >
-            <div className="px-8 pt-8 pb-5 shrink-0" style={{ borderBottom: '1px solid #EDE4DA' }}>
+            <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-5 shrink-0" style={{ borderBottom: '1px solid #EDE4DA' }}>
               <div className="flex gap-1 p-1 rounded-2xl w-fit mb-5" style={{ background: '#F0E8E0', border: '1px solid #E0D4C8' }}>
                 {([
                   { v: 'journal' as const, label: '✍ Entry' },
@@ -476,7 +478,7 @@ export default function JournalPage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-8 py-6">
+            <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-5 sm:py-6">
               <p className="text-[10px] tracking-[0.4em] uppercase text-[#7A6155]/30 mb-4">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
@@ -531,7 +533,7 @@ export default function JournalPage() {
               )}
             </div>
 
-            <div className="px-8 py-5 shrink-0 flex flex-col gap-3" style={{ borderTop: '1px solid #EDE4DA' }}>
+            <div className="px-5 sm:px-8 py-4 sm:py-5 shrink-0 flex flex-col gap-3" style={{ borderTop: '1px solid #EDE4DA' }}>
               {saveError && (
                 <p className="text-xs text-red-400/80 px-1">{saveError}</p>
               )}
