@@ -38,40 +38,80 @@ type Suggestion = {
   notes?: string
 }
 
-const SUGGESTIONS: Suggestion[] = [
+// Full pool — shown suggestions are drawn from here and swapped on add
+const SUGGESTIONS_POOL: Suggestion[] = [
   // Outdoor
-  { title: 'Sunrise picnic in the park',         category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey'],      notes: 'Bring a blanket, fruit, pastries, and coffee' },
-  { title: 'Stargazing with hot chocolate',       category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Find a dark spot away from the city lights' },
-  { title: 'Farmers market morning',              category: 'outdoor',  cost: 'affordable', vibes: ['lowkey', 'spontaneous'],   notes: 'Walk around, try samples, cook together after' },
-  { title: 'Sunset walk along the water',         category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey'],      notes: 'Golden hour, just the two of you' },
-  { title: 'Bike ride to a new neighborhood',     category: 'outdoor',  cost: 'free',       vibes: ['adventurous', 'spontaneous'] },
+  { title: 'Sunrise picnic in the park',          category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey'],         notes: 'Bring a blanket, fruit, pastries, and coffee' },
+  { title: 'Stargazing with hot chocolate',        category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'cozy'],           notes: 'Find a dark spot away from the city lights' },
+  { title: 'Farmers market morning',               category: 'outdoor',  cost: 'affordable', vibes: ['lowkey', 'spontaneous'],      notes: 'Walk around, try samples, cook together after' },
+  { title: 'Sunset walk along the water',          category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey'],         notes: 'Golden hour, just the two of you' },
+  { title: 'Bike ride to a new neighborhood',      category: 'outdoor',  cost: 'free',       vibes: ['adventurous', 'spontaneous']  },
+  { title: 'Botanical garden walk',                category: 'outdoor',  cost: 'affordable', vibes: ['romantic', 'lowkey'],         notes: 'Slow and wandering, no agenda' },
+  { title: 'Outdoor movie night',                  category: 'outdoor',  cost: 'affordable', vibes: ['cozy', 'romantic'],           notes: 'Bring snacks and a blanket' },
+  { title: 'Berry or apple picking at a farm',     category: 'outdoor',  cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Then make something with what you picked' },
+  { title: 'Hike to a scenic overlook',            category: 'outdoor',  cost: 'free',       vibes: ['adventurous', 'romantic'],    notes: 'Pack lunch and eat at the top' },
+  { title: 'Visit a beach or lakeside at sunset',  category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey']          },
   // Cozy
-  { title: 'Build a blanket fort & watch movies', category: 'indoor',   cost: 'free',       vibes: ['cozy', 'lowkey'],          notes: 'Pick two movies — one each' },
-  { title: 'Cook a new recipe together',          category: 'indoor',   cost: 'affordable', vibes: ['cozy', 'romantic'],        notes: 'Pick something neither of you has made before' },
-  { title: 'Home spa night',                      category: 'indoor',   cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Face masks, candles, good music, zero plans' },
-  { title: 'Bake something from scratch together',category: 'indoor',   cost: 'affordable', vibes: ['cozy', 'spontaneous'],     notes: 'Cookies, cinnamon rolls, bread — anything' },
-  { title: 'Dress up for dinner at home',         category: 'indoor',   cost: 'affordable', vibes: ['romantic', 'fancy'],       notes: 'Order from somewhere nice, light candles, dress up like it\'s a real night out' },
+  { title: 'Build a blanket fort & watch movies',  category: 'indoor',   cost: 'free',       vibes: ['cozy', 'lowkey'],             notes: 'Pick two movies — one each' },
+  { title: 'Cook a new recipe together',           category: 'indoor',   cost: 'affordable', vibes: ['cozy', 'romantic'],           notes: 'Pick something neither of you has made before' },
+  { title: 'Home spa night',                       category: 'indoor',   cost: 'free',       vibes: ['romantic', 'cozy'],           notes: 'Face masks, candles, good music, zero plans' },
+  { title: 'Bake something from scratch together', category: 'indoor',   cost: 'affordable', vibes: ['cozy', 'spontaneous'],        notes: 'Cookies, cinnamon rolls, bread — anything' },
+  { title: 'Dress up for dinner at home',          category: 'indoor',   cost: 'affordable', vibes: ['romantic', 'fancy'],          notes: 'Order from somewhere nice, light candles, dress up like it\'s a real night out' },
+  { title: 'Game night — board games or cards',    category: 'indoor',   cost: 'free',       vibes: ['spontaneous', 'lowkey'],      notes: 'Make it competitive, winner picks dessert' },
+  { title: 'Slow morning with breakfast in bed',   category: 'indoor',   cost: 'free',       vibes: ['cozy', 'romantic'],           notes: 'No phones, no plans, just the morning' },
+  { title: 'Make homemade cocktails or mocktails', category: 'indoor',   cost: 'affordable', vibes: ['spontaneous', 'fancy'],       notes: 'Look up recipes together and experiment' },
+  { title: 'Read the same book & discuss it',      category: 'indoor',   cost: 'free',       vibes: ['cozy', 'lowkey']              },
+  { title: 'Watch the sunrise together at home',   category: 'indoor',   cost: 'free',       vibes: ['romantic', 'cozy'],           notes: 'Coffee in pajamas, watching the sky change color' },
   // Food
-  { title: 'Sushi omakase dinner',                category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic'] },
-  { title: 'Dessert crawl',                       category: 'food',     cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Pick 3 different dessert spots and try something at each' },
-  { title: 'Try a cuisine neither of you has had',category: 'food',     cost: 'affordable', vibes: ['adventurous', 'spontaneous'], notes: 'Ethiopian, Georgian, Peruvian — somewhere new' },
-  { title: 'Late-night diner run',                category: 'food',     cost: 'affordable', vibes: ['spontaneous', 'lowkey'],   notes: 'Pancakes at midnight hits different' },
-  { title: 'Fancy brunch at a nice spot',         category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic'] },
+  { title: 'Sushi omakase dinner',                 category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic']           },
+  { title: 'Dessert crawl',                        category: 'food',     cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Pick 3 different spots and try something at each' },
+  { title: 'Try a cuisine neither of you has had', category: 'food',     cost: 'affordable', vibes: ['adventurous', 'spontaneous'], notes: 'Ethiopian, Georgian, Peruvian — somewhere new' },
+  { title: 'Late-night diner run',                 category: 'food',     cost: 'affordable', vibes: ['spontaneous', 'lowkey'],      notes: 'Pancakes at midnight hits different' },
+  { title: 'Fancy brunch at a nice spot',          category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic']           },
+  { title: 'Wine or cocktail tasting',             category: 'food',     cost: 'affordable', vibes: ['fancy', 'romantic']           },
+  { title: 'Cook a 3-course meal together',        category: 'food',     cost: 'affordable', vibes: ['romantic', 'cozy'],           notes: 'Dress up, set the table nicely, make it feel special' },
+  { title: 'Food hall tour — try a bit of everything', category: 'food', cost: 'affordable', vibes: ['adventurous', 'spontaneous'] },
+  { title: 'Make homemade pizza from scratch',     category: 'food',     cost: 'affordable', vibes: ['cozy', 'spontaneous'],        notes: 'Each make your own half with whatever toppings you want' },
+  { title: 'Tasting menu at a restaurant',         category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic'],          notes: 'Let the chef decide — just show up and enjoy' },
   // Travel
-  { title: 'Overnight trip to a nearby city',     category: 'travel',   cost: 'splurge',    vibes: ['adventurous', 'romantic'], notes: 'Even one night away feels like an escape' },
-  { title: 'Day trip somewhere neither of you has been', category: 'travel', cost: 'affordable', vibes: ['adventurous', 'spontaneous'] },
-  { title: 'Plan a dream trip together',          category: 'travel',   cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Pick somewhere you both want to go and actually start planning it' },
+  { title: 'Overnight trip to a nearby city',      category: 'travel',   cost: 'splurge',    vibes: ['adventurous', 'romantic'],    notes: 'Even one night away feels like an escape' },
+  { title: 'Day trip somewhere new',               category: 'travel',   cost: 'affordable', vibes: ['adventurous', 'spontaneous'], notes: 'Pick a direction and just go' },
+  { title: 'Plan a dream trip together',           category: 'travel',   cost: 'free',       vibes: ['romantic', 'cozy'],           notes: 'Pick somewhere you both want to go and actually start planning it' },
+  { title: 'Explore a neighborhood you\'ve never been to', category: 'travel', cost: 'free', vibes: ['adventurous', 'spontaneous'], notes: 'Walk, find a coffee shop, be tourists in your own city' },
+  { title: 'Scenic drive with no destination',     category: 'travel',   cost: 'free',       vibes: ['spontaneous', 'romantic'],    notes: 'Good playlist, windows down, see where you end up' },
+  { title: 'Rent a cabin for a weekend',           category: 'travel',   cost: 'splurge',    vibes: ['romantic', 'cozy'],           notes: 'Fireplace, no wifi, just you two' },
+  { title: 'Take a train or ferry somewhere',      category: 'travel',   cost: 'affordable', vibes: ['adventurous', 'spontaneous'], notes: 'The journey is the date' },
   // Fun
-  { title: 'Escape room',                         category: 'fun',      cost: 'affordable', vibes: ['adventurous', 'spontaneous'] },
-  { title: 'Mini golf + ice cream after',         category: 'fun',      cost: 'affordable', vibes: ['lowkey', 'spontaneous'] },
-  { title: 'Arcade bar night',                    category: 'fun',      cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Competitive but make it a bet — loser buys dinner' },
-  { title: 'Trivia night at a bar',               category: 'fun',      cost: 'affordable', vibes: ['lowkey', 'spontaneous'],   notes: 'Go as a team, embarrass yourselves together' },
+  { title: 'Escape room',                          category: 'fun',      cost: 'affordable', vibes: ['adventurous', 'spontaneous']  },
+  { title: 'Mini golf + ice cream after',          category: 'fun',      cost: 'affordable', vibes: ['lowkey', 'spontaneous']       },
+  { title: 'Arcade bar night',                     category: 'fun',      cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Make it a bet — loser buys dinner' },
+  { title: 'Trivia night at a bar',                category: 'fun',      cost: 'affordable', vibes: ['lowkey', 'spontaneous'],      notes: 'Go as a team, embarrass yourselves together' },
+  { title: 'Bowling with silly rules',             category: 'fun',      cost: 'affordable', vibes: ['spontaneous', 'lowkey'],      notes: 'Eyes closed every other turn, non-dominant hand only, etc.' },
+  { title: 'Go-kart racing',                       category: 'fun',      cost: 'affordable', vibes: ['adventurous', 'spontaneous']  },
+  { title: 'Comedy show or improv night',          category: 'fun',      cost: 'affordable', vibes: ['spontaneous', 'lowkey']       },
+  { title: 'Laser tag',                            category: 'fun',      cost: 'affordable', vibes: ['adventurous', 'spontaneous']  },
   // Creative
-  { title: 'Mini photoshoot together',            category: 'creative', cost: 'free',       vibes: ['romantic', 'spontaneous'], notes: 'Golden hour, a nice location, just your phone — you\'ll love the photos' },
-  { title: 'Paint & sip class',                   category: 'creative', cost: 'affordable', vibes: ['romantic', 'lowkey'] },
-  { title: 'Make a shared playlist',              category: 'creative', cost: 'free',       vibes: ['cozy', 'romantic'],        notes: 'Take turns adding songs, no skipping allowed, see what you both make' },
-  { title: 'Write letters to each other',         category: 'creative', cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Seal them and save one to read on your anniversary' },
+  { title: 'Mini photoshoot together',             category: 'creative', cost: 'free',       vibes: ['romantic', 'spontaneous'],    notes: 'Golden hour, a nice location, just your phone — you\'ll love the photos' },
+  { title: 'Paint & sip class',                    category: 'creative', cost: 'affordable', vibes: ['romantic', 'lowkey']          },
+  { title: 'Make a shared playlist',               category: 'creative', cost: 'free',       vibes: ['cozy', 'romantic'],           notes: 'Take turns adding songs, no skipping, see what you make together' },
+  { title: 'Write letters to each other',          category: 'creative', cost: 'free',       vibes: ['romantic', 'cozy'],           notes: 'Seal them and save one to read on your anniversary' },
+  { title: 'Pottery or ceramics class',            category: 'creative', cost: 'affordable', vibes: ['romantic', 'adventurous'],    notes: 'Ghost moment guaranteed' },
+  { title: 'Visit a local art museum',             category: 'creative', cost: 'affordable', vibes: ['lowkey', 'romantic'],         notes: 'Pick a favorite piece and explain why' },
+  { title: 'Make a scrapbook of your memories',    category: 'creative', cost: 'free',       vibes: ['romantic', 'cozy'],           notes: 'Print a few photos, grab some glue and pens, make something to keep' },
+  { title: 'Learn a dance together',               category: 'creative', cost: 'free',       vibes: ['spontaneous', 'romantic'],    notes: 'Just YouTube it, you\'ll be terrible and it\'ll be perfect' },
+  { title: 'Make a short film or vlog together',   category: 'creative', cost: 'free',       vibes: ['spontaneous', 'adventurous'], notes: 'Document a random day — you\'ll treasure it later' },
 ]
+
+// Initial suggestions shown per category (3 each)
+const INITIAL_PER_CAT = 3
+function getInitialSuggestions(excludeTitles: Set<string>): Suggestion[] {
+  const result: Suggestion[] = []
+  for (const cat of Object.keys(categories) as Category[]) {
+    const pool = SUGGESTIONS_POOL.filter(s => s.category === cat && !excludeTitles.has(s.title))
+    result.push(...pool.slice(0, INITIAL_PER_CAT))
+  }
+  return result
+}
 
 const ROTS = [-2, 1.5, -1, 2, -1.5, 1, -2.5, 1.5, -1, 2]
 
@@ -126,13 +166,19 @@ export default function DateIdeasPage() {
   const [saving, setSaving]           = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [addingSuggestion, setAddingSuggestion] = useState<string | null>(null)
+  const [displayedSuggestions, setDisplayedSuggestions] = useState<Suggestion[]>([])
 
   useEffect(() => {
     supabase
       .from('date_ideas')
       .select('*')
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setIdeas(data ?? []); setLoading(false) })
+      .then(({ data }) => {
+        const fetched = data ?? []
+        setIdeas(fetched)
+        setDisplayedSuggestions(getInitialSuggestions(new Set(fetched.map(i => i.title))))
+        setLoading(false)
+      })
   }, [])
 
   function openCompose() {
@@ -194,7 +240,24 @@ export default function DateIdeasPage() {
       done: false,
       rating: 0,
     }).select().single()
-    if (data) setIdeas(prev => [data, ...prev])
+
+    if (data) {
+      setIdeas(prev => {
+        const updated = [data, ...prev]
+        // Swap this suggestion for a fresh one from the pool
+        setDisplayedSuggestions(cur => {
+          const shownTitles = new Set(cur.map(x => x.title))
+          const addedTitles = new Set(updated.map(i => i.title))
+          const pool = SUGGESTIONS_POOL.filter(
+            x => x.category === s.category && !shownTitles.has(x.title) && !addedTitles.has(x.title)
+          )
+          if (pool.length === 0) return cur.filter(x => x.title !== s.title)
+          const replacement = pool[Math.floor(Math.random() * pool.length)]
+          return cur.map(x => x.title === s.title ? replacement : x)
+        })
+        return updated
+      })
+    }
     setAddingSuggestion(null)
   }
 
@@ -326,10 +389,9 @@ export default function DateIdeasPage() {
           {showSuggestions && (
             <div className="mt-5 flex flex-col gap-6">
               {(Object.keys(categories) as Category[]).map(cat => {
-                const group = SUGGESTIONS.filter(s => s.category === cat)
+                const group = displayedSuggestions.filter(s => s.category === cat)
                 if (!group.length) return null
                 const catInfo = categories[cat]
-                const alreadyAdded = new Set(ideas.map(i => i.title))
                 return (
                   <div key={cat}>
                     <p className="text-[10px] tracking-[0.4em] uppercase mb-3 flex items-center gap-1.5" style={{ color: '#7A6155' }}>
@@ -337,7 +399,6 @@ export default function DateIdeasPage() {
                     </p>
                     <div className="flex flex-col gap-2">
                       {group.map(s => {
-                        const added = alreadyAdded.has(s.title)
                         const adding = addingSuggestion === s.title
                         const costInfo = COSTS.find(c => c.v === s.cost)
                         return (
@@ -345,15 +406,13 @@ export default function DateIdeasPage() {
                             key={s.title}
                             className="flex items-start justify-between gap-4 px-4 py-3 rounded-2xl"
                             style={{
-                              background: added ? 'rgba(44,26,14,0.03)' : catInfo.bg,
-                              border: `1px solid ${added ? '#EDE4DA' : catInfo.border}`,
-                              opacity: added ? 0.5 : 1,
+                              background: catInfo.bg,
+                              border: `1px solid ${catInfo.border}`,
+                              animation: 'card-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both',
                             }}
                           >
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-[#2C1A0E]" style={{ ...serif, textDecoration: added ? 'line-through' : 'none' }}>
-                                {s.title}
-                              </p>
+                              <p className="text-sm font-semibold text-[#2C1A0E]" style={serif}>{s.title}</p>
                               {s.notes && (
                                 <p className="text-[11px] text-[#7A6155]/60 mt-0.5 leading-relaxed">{s.notes}</p>
                               )}
@@ -374,16 +433,12 @@ export default function DateIdeasPage() {
                               </div>
                             </div>
                             <button
-                              onClick={() => !added && quickAdd(s)}
-                              disabled={added || adding}
-                              className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-40"
-                              style={{
-                                background: added ? 'transparent' : '#C4784A',
-                                color: added ? '#AE9B8E' : '#fff',
-                                border: added ? '1px solid #E8DDD4' : 'none',
-                              }}
+                              onClick={() => quickAdd(s)}
+                              disabled={adding}
+                              className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
+                              style={{ background: '#C4784A', color: '#fff' }}
                             >
-                              {added ? '✓ Added' : adding ? '...' : '+ Add'}
+                              {adding ? '...' : '+ Add'}
                             </button>
                           </div>
                         )
