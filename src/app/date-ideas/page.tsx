@@ -30,6 +30,49 @@ const VIBES = [
 type Category = keyof typeof categories
 type Filter = 'all' | 'ideas' | 'planned' | 'done'
 
+type Suggestion = {
+  title: string
+  category: Category
+  cost: 'free' | 'affordable' | 'splurge'
+  vibes: string[]
+  notes?: string
+}
+
+const SUGGESTIONS: Suggestion[] = [
+  // Outdoor
+  { title: 'Sunrise picnic in the park',         category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey'],      notes: 'Bring a blanket, fruit, pastries, and coffee' },
+  { title: 'Stargazing with hot chocolate',       category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Find a dark spot away from the city lights' },
+  { title: 'Farmers market morning',              category: 'outdoor',  cost: 'affordable', vibes: ['lowkey', 'spontaneous'],   notes: 'Walk around, try samples, cook together after' },
+  { title: 'Sunset walk along the water',         category: 'outdoor',  cost: 'free',       vibes: ['romantic', 'lowkey'],      notes: 'Golden hour, just the two of you' },
+  { title: 'Bike ride to a new neighborhood',     category: 'outdoor',  cost: 'free',       vibes: ['adventurous', 'spontaneous'] },
+  // Cozy
+  { title: 'Build a blanket fort & watch movies', category: 'indoor',   cost: 'free',       vibes: ['cozy', 'lowkey'],          notes: 'Pick two movies — one each' },
+  { title: 'Cook a new recipe together',          category: 'indoor',   cost: 'affordable', vibes: ['cozy', 'romantic'],        notes: 'Pick something neither of you has made before' },
+  { title: 'Home spa night',                      category: 'indoor',   cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Face masks, candles, good music, zero plans' },
+  { title: 'Bake something from scratch together',category: 'indoor',   cost: 'affordable', vibes: ['cozy', 'spontaneous'],     notes: 'Cookies, cinnamon rolls, bread — anything' },
+  { title: 'Dress up for dinner at home',         category: 'indoor',   cost: 'affordable', vibes: ['romantic', 'fancy'],       notes: 'Order from somewhere nice, light candles, dress up like it\'s a real night out' },
+  // Food
+  { title: 'Sushi omakase dinner',                category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic'] },
+  { title: 'Dessert crawl',                       category: 'food',     cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Pick 3 different dessert spots and try something at each' },
+  { title: 'Try a cuisine neither of you has had',category: 'food',     cost: 'affordable', vibes: ['adventurous', 'spontaneous'], notes: 'Ethiopian, Georgian, Peruvian — somewhere new' },
+  { title: 'Late-night diner run',                category: 'food',     cost: 'affordable', vibes: ['spontaneous', 'lowkey'],   notes: 'Pancakes at midnight hits different' },
+  { title: 'Fancy brunch at a nice spot',         category: 'food',     cost: 'splurge',    vibes: ['fancy', 'romantic'] },
+  // Travel
+  { title: 'Overnight trip to a nearby city',     category: 'travel',   cost: 'splurge',    vibes: ['adventurous', 'romantic'], notes: 'Even one night away feels like an escape' },
+  { title: 'Day trip somewhere neither of you has been', category: 'travel', cost: 'affordable', vibes: ['adventurous', 'spontaneous'] },
+  { title: 'Plan a dream trip together',          category: 'travel',   cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Pick somewhere you both want to go and actually start planning it' },
+  // Fun
+  { title: 'Escape room',                         category: 'fun',      cost: 'affordable', vibes: ['adventurous', 'spontaneous'] },
+  { title: 'Mini golf + ice cream after',         category: 'fun',      cost: 'affordable', vibes: ['lowkey', 'spontaneous'] },
+  { title: 'Arcade bar night',                    category: 'fun',      cost: 'affordable', vibes: ['spontaneous', 'adventurous'], notes: 'Competitive but make it a bet — loser buys dinner' },
+  { title: 'Trivia night at a bar',               category: 'fun',      cost: 'affordable', vibes: ['lowkey', 'spontaneous'],   notes: 'Go as a team, embarrass yourselves together' },
+  // Creative
+  { title: 'Mini photoshoot together',            category: 'creative', cost: 'free',       vibes: ['romantic', 'spontaneous'], notes: 'Golden hour, a nice location, just your phone — you\'ll love the photos' },
+  { title: 'Paint & sip class',                   category: 'creative', cost: 'affordable', vibes: ['romantic', 'lowkey'] },
+  { title: 'Make a shared playlist',              category: 'creative', cost: 'free',       vibes: ['cozy', 'romantic'],        notes: 'Take turns adding songs, no skipping allowed, see what you both make' },
+  { title: 'Write letters to each other',         category: 'creative', cost: 'free',       vibes: ['romantic', 'cozy'],        notes: 'Seal them and save one to read on your anniversary' },
+]
+
 const ROTS = [-2, 1.5, -1, 2, -1.5, 1, -2.5, 1.5, -1, 2]
 
 const serif = { fontFamily: 'var(--font-serif, Georgia, "Times New Roman", serif)' }
@@ -74,13 +117,15 @@ export default function DateIdeasPage() {
   const [composing, setComposing] = useState(false)
   const [surprise, setSurprise] = useState<DateIdea | null>(null)
 
-  const [fTitle, setFTitle]   = useState('')
-  const [fCat, setFCat]       = useState<Category>('indoor')
-  const [fNotes, setFNotes]   = useState('')
-  const [fCost, setFCost]     = useState('')
-  const [fVibes, setFVibes]   = useState<string[]>([])
-  const [fDate, setFDate]     = useState('')
-  const [saving, setSaving]   = useState(false)
+  const [fTitle, setFTitle]           = useState('')
+  const [fCat, setFCat]               = useState<Category>('indoor')
+  const [fNotes, setFNotes]           = useState('')
+  const [fCost, setFCost]             = useState('')
+  const [fVibes, setFVibes]           = useState<string[]>([])
+  const [fDate, setFDate]             = useState('')
+  const [saving, setSaving]           = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [addingSuggestion, setAddingSuggestion] = useState<string | null>(null)
 
   useEffect(() => {
     supabase
@@ -134,6 +179,23 @@ export default function DateIdeasPage() {
     if (!pool.length) return
     const next = pool[Math.floor(Math.random() * pool.length)]
     setSurprise(next)
+  }
+
+  async function quickAdd(s: Suggestion) {
+    if (addingSuggestion === s.title) return
+    setAddingSuggestion(s.title)
+    const { data } = await supabase.from('date_ideas').insert({
+      title: s.title,
+      category: s.category,
+      notes: s.notes ?? null,
+      cost: s.cost,
+      vibes: s.vibes,
+      planned_date: null,
+      done: false,
+      rating: 0,
+    }).select().single()
+    if (data) setIdeas(prev => [data, ...prev])
+    setAddingSuggestion(null)
   }
 
   const filtered = ideas.filter(i => {
@@ -247,6 +309,89 @@ export default function DateIdeasPage() {
                   {label}
                 </button>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Suggestions panel ── */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 mb-8">
+          <button
+            onClick={() => setShowSuggestions(s => !s)}
+            className="flex items-center gap-2 text-sm text-[#7A6155]/60 hover:text-[#C4784A] transition-colors"
+          >
+            <span style={{ fontSize: 14, transition: 'transform 0.2s', display: 'inline-block', transform: showSuggestions ? 'rotate(90deg)' : 'rotate(0deg)' }}>›</span>
+            {showSuggestions ? 'Hide suggestions' : 'Need inspiration? See our recommendations'}
+          </button>
+
+          {showSuggestions && (
+            <div className="mt-5 flex flex-col gap-6">
+              {(Object.keys(categories) as Category[]).map(cat => {
+                const group = SUGGESTIONS.filter(s => s.category === cat)
+                if (!group.length) return null
+                const catInfo = categories[cat]
+                const alreadyAdded = new Set(ideas.map(i => i.title))
+                return (
+                  <div key={cat}>
+                    <p className="text-[10px] tracking-[0.4em] uppercase mb-3 flex items-center gap-1.5" style={{ color: '#7A6155' }}>
+                      <span>{catInfo.emoji}</span> {catInfo.label}
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {group.map(s => {
+                        const added = alreadyAdded.has(s.title)
+                        const adding = addingSuggestion === s.title
+                        const costInfo = COSTS.find(c => c.v === s.cost)
+                        return (
+                          <div
+                            key={s.title}
+                            className="flex items-start justify-between gap-4 px-4 py-3 rounded-2xl"
+                            style={{
+                              background: added ? 'rgba(44,26,14,0.03)' : catInfo.bg,
+                              border: `1px solid ${added ? '#EDE4DA' : catInfo.border}`,
+                              opacity: added ? 0.5 : 1,
+                            }}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-[#2C1A0E]" style={{ ...serif, textDecoration: added ? 'line-through' : 'none' }}>
+                                {s.title}
+                              </p>
+                              {s.notes && (
+                                <p className="text-[11px] text-[#7A6155]/60 mt-0.5 leading-relaxed">{s.notes}</p>
+                              )}
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {costInfo && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(196,120,74,0.1)', color: '#C4784A' }}>
+                                    {costInfo.icon} {costInfo.label}
+                                  </span>
+                                )}
+                                {s.vibes.map(v => {
+                                  const vibe = VIBES.find(x => x.v === v)
+                                  return vibe ? (
+                                    <span key={v} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(44,26,14,0.06)', color: '#7A6155' }}>
+                                      {vibe.icon} {vibe.label}
+                                    </span>
+                                  ) : null
+                                })}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => !added && quickAdd(s)}
+                              disabled={added || adding}
+                              className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-40"
+                              style={{
+                                background: added ? 'transparent' : '#C4784A',
+                                color: added ? '#AE9B8E' : '#fff',
+                                border: added ? '1px solid #E8DDD4' : 'none',
+                              }}
+                            >
+                              {added ? '✓ Added' : adding ? '...' : '+ Add'}
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
