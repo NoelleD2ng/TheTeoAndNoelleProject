@@ -61,6 +61,9 @@ export type DateIdea = {
   done: boolean
   rating: number
   notes: string | null
+  planned_date: string | null
+  cost: 'free' | 'affordable' | 'splurge' | null
+  vibes: string[] | null
   created_at: string
 }
 
