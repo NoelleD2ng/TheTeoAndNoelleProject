@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Camera, Star, Coffee, Radio, CheckSquare, MapPin, Code2, BookOpen } from 'lucide-react'
+import LongDistanceWidget from '@/components/LongDistanceWidget'
 
 const sections = [
   { href: '/memories',    label: 'Memories',    icon: Camera,      desc: 'photos & moments' },
@@ -129,6 +130,11 @@ export default function OurStoryPage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* ── Long distance widget ──────────────────────────────── */}
+      <section className="px-6 md:px-10 pb-10 max-w-2xl mx-auto">
+        <LongDistanceWidget />
       </section>
 
       {/* ── Story card ────────────────────────────────────────── */}

@@ -67,6 +67,11 @@ export type DateIdea = {
   created_at: string
 }
 
+export type Presence = {
+  user_name: 'teo' | 'noelle'
+  last_seen: string
+}
+
 export type CurrentlyEntry = {
   user_name: 'teo' | 'noelle'
   watching: string | null
